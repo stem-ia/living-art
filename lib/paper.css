@@ -1,0 +1,64 @@
+/* Light "paper" pages: Gallery Builder, My piece, the handout and the teacher guide. Loaded after app.css. */
+body.paper { background: #ece3cf; color: var(--ink); }
+.paper a { color: #7a5c12; }
+.top { display: flex; align-items: center; gap: 16px; padding: 14px 20px; background: var(--ink); color: var(--paper); }
+.top h1 { font-size: 21px; }
+.top h1 a { color: inherit; text-decoration: none; }
+.top h1 span { color: var(--gold); font-weight: 400; font-style: italic; }
+.top nav { margin-left: auto; display: flex; gap: 18px; font-size: 14px; }
+.top nav a { color: var(--paper); opacity: .8; text-decoration: none; }
+.top nav a:hover { opacity: 1; }
+main.cols { max-width: 1040px; margin: 0 auto; padding: 22px 14px 90px; display: grid; gap: 18px; }
+main.narrow { max-width: 720px; }
+.card { background: #faf6ec; border-radius: var(--radius); padding: 20px 20px 22px; box-shadow: 0 1px 0 rgba(60,40,10,.05), 0 8px 26px rgba(60,40,10,.07); }
+.card h2 { font-size: 23px; display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+.card h2 small { font: 400 14px var(--sans); color: #7b6f5c; }
+.num { width: 30px; height: 30px; border-radius: 50%; background: var(--ink); color: var(--gold); display: inline-grid; place-items: center; font: 700 14px/1 var(--sans); flex: none; }
+.num.done { background: var(--ok); color: #fff; }
+.paper label { display: block; font-size: 13px; font-weight: 600; color: #5a4f3e; margin-bottom: 6px; }
+.paper input[type=text], .paper textarea { width: 100%; font: 16px var(--sans); padding: 11px 12px; border-radius: 10px; border: 1.5px solid #d6c9a7; background: #fff; color: var(--ink); transition: border-color .15s ease; }
+.paper textarea { resize: vertical; min-height: 84px; line-height: 1.45; }
+.paper input[type=text]:focus, .paper textarea:focus { outline: none; border-color: var(--ink); }
+.fields-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.help { font-size: 13.5px; color: #6f634f; margin-top: 6px; line-height: 1.45; }
+.help code, .steps code { background: #ece3cf; padding: 1px 5px; border-radius: 4px; word-break: break-all; }
+.inline { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+button.small, .btn.small { padding: 10px 16px; min-height: 40px; font-size: 14px; }
+.btn-line { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
+.btn-line:hover { background: rgba(23,21,29,.06); filter: none; }
+.btn-dark { background: var(--ink); color: var(--paper); }
+.paper button:focus-visible, .paper .btn:focus-visible { outline-color: var(--ink); }
+
+.dropzone { border: 2px dashed #c6b48a; border-radius: 14px; padding: 22px; text-align: center; color: #6b5f4b; font-size: 15px; line-height: 1.5; transition: background .15s ease, border-color .15s ease, transform .2s var(--spring); }
+.dropzone.over { background: #f1e5c4; border-color: var(--ink); transform: scale(1.005); }
+.dropzone strong { color: var(--ink); }
+.dropzone .inline { justify-content: center; margin-top: 12px; }
+
+/* one line per finding: a coloured dot, a plain sentence, and a button when the page can fix it */
+.checks { list-style: none; padding: 0; margin: 6px 0 0; display: grid; gap: 6px; font-size: 14px; line-height: 1.4; }
+.checks li { display: flex; gap: 8px; align-items: flex-start; flex-wrap: wrap; }
+.checks li > span { flex: 1 1 220px; min-width: 0; }
+.checks li::before { content: ""; flex: none; width: 9px; height: 9px; border-radius: 50%; margin-top: 5px; background: #b9b0a0; }
+.checks li.ok::before { background: var(--ok); }
+.checks li.warn::before { background: var(--warn); }
+.checks li.bad::before { background: var(--bad); }
+.checks li.info::before { background: #8d8471; }
+.checks li.busy::before { background: transparent; border: 2px solid #b9b0a0; border-top-color: var(--ink); width: 7px; height: 7px; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.checks .fix { flex: none; background: var(--ink); color: var(--paper); font-size: 13px; padding: 7px 12px; min-height: 32px; border-radius: 999px; }
+
+.progress { height: 10px; background: #ece3cf; border-radius: 999px; overflow: hidden; margin: 14px 0 6px; }
+.progress > div { height: 100%; width: 0; background: var(--ink); transition: width .25s ease; }
+.status { font-size: 14px; color: #5a4f3e; min-height: 20px; }
+.status.err { color: var(--bad); font-weight: 600; }
+.note { font-size: 13.5px; color: #5a4f3e; line-height: 1.5; margin-top: 14px; padding: 12px 14px; background: #f3ecdb; border-radius: 10px; }
+.steps { margin: 14px 0 0; padding-left: 20px; line-height: 1.6; font-size: 15px; }
+
+/* the try-it overlay: the real viewer, running on files that are still only on this device */
+#try-frame { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; z-index: 50; background: var(--ink); }
+
+@media (max-width: 720px) {
+  .fields-2 { grid-template-columns: 1fr; }
+  .top nav { display: none; }
+  .card { padding: 16px 14px 18px; }
+}

@@ -1,0 +1,45 @@
+{
+  "schema": 2,
+  "title": "Living Art Demo Gallery",
+  "subtitle": "STEM Innovation Academy",
+  "id": "demo",
+  "loop": true,
+  "version": 1795032358991,
+  "built": "2026-11-18T20:05:58.991Z",
+  "artworks": [
+    {
+      "id": "isles",
+      "title": "The Placeholder Isles",
+      "artist": "Demo piece · atlas map",
+      "image": "art/01.jpg",
+      "video": "video/01.mp4",
+      "w": 1200,
+      "h": 900,
+      "test": "ffffffTTTTff",
+      "statement": "A chart of islands that don't exist. Watch the ship: it sails while the compass needle swings and cloud shadows cross the sea."
+    },
+    {
+      "id": "harbour",
+      "title": "Lantern Harbour",
+      "artist": "Demo piece · night city",
+      "image": "art/02.jpg",
+      "video": "video/02.mp4",
+      "w": 900,
+      "h": 1200,
+      "test": "fTffffTTffff",
+      "statement": "A harbour after dark. A boat crosses the water and fireworks open beside the moon."
+    },
+    {
+      "id": "garden",
+      "title": "Garden Study No. 3",
+      "artist": "Demo piece · botanical",
+      "image": "art/03.jpg",
+      "video": "video/03.mp4",
+      "w": 900,
+      "h": 1200,
+      "test": "TTTTTTTTTTTT",
+      "statement": "A hedge in full bloom. Watch the butterflies move from flower to flower."
+    }
+  ],
+  "targetsGz": true
+}

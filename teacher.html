@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Living Art · Teacher guide</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%2317151d%27/%3E%3Crect x=%278%27 y=%277%27 width=%2716%27 height=%2718%27 rx=%271.5%27 fill=%27none%27 stroke=%27%23dcb45f%27 stroke-width=%272.4%27/%3E%3Cpath d=%27M14 12.5v7l6-3.5z%27 fill=%27%23f3ecdb%27/%3E%3C/svg%3E">
+<link rel="stylesheet" href="lib/app.css">
+<link rel="stylesheet" href="lib/paper.css">
+<style>
+  .sheet { max-width: 860px; margin: 0 auto; padding: 30px 20px 80px; }
+  .eyebrow { font: 600 12px/1 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: #8d7a45; }
+  h1 { font-size: clamp(32px, 6.4vw, 44px); margin: 10px 0 8px; }
+  .lede { font-size: 17px; color: #5a4f3e; margin: 0 0 24px; max-width: 64ch; }
+  .card { margin-bottom: 14px; }
+  .card h2 { margin-bottom: 8px; }
+  .card p, .card li { font-size: 15.5px; line-height: 1.55; }
+  .card p { margin: 0 0 8px; }
+  .card ul, .card ol { margin: 4px 0 0; padding-left: 20px; }
+  .card li b { font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; line-height: 1.45; margin-top: 6px; }
+  th, td { text-align: left; vertical-align: top; padding: 9px 10px; border-bottom: 1px solid #e5dcc3; }
+  th { font: 600 12.5px var(--sans); color: #7b6f5c; text-transform: uppercase; letter-spacing: .06em; }
+  td:first-child { font-weight: 600; width: 34%; }
+  .links { display: flex; gap: 10px; flex-wrap: wrap; margin: 0 0 22px; }
+  .links .btn { background: var(--ink); color: var(--paper); }
+  @media print { @page { size: letter; margin: 12mm; } body.paper { background: #fff; } .top, .links { display: none; } .sheet { padding: 0; max-width: none; } .card { box-shadow: none; border: 1px solid #333; background: #fff; break-inside: avoid; padding: 10px 14px; } .card p, .card li, table { font-size: 12px; } h1 { font-size: 28px; } .card h2 { font-size: 17px; } }
+</style>
+</head>
+<body class="paper">
+<div class="top"><h1 style="font-size:21px;margin:0"><a href="./">Living Art</a> <span>Teacher guide</span></h1><nav><a href="build.html">Gallery Builder</a><a href="student.html">Student handout</a><a href="view.html?g=demo">Demo gallery</a></nav></div>
+<div class="sheet">
+  <div class="eyebrow">Living Art</div>
+  <h1>Run a Living Art project</h1>
+  <p class="lede">Students finish a piece, animate it, and hang it. Visitors scan one QR code and every artwork in the room plays its animation when a phone points at it. No app, no accounts, nothing collected.</p>
+  <div class="links"><a class="btn small" href="student.html">Student handout</a><a class="btn small" href="piece.html">Student page (My piece)</a><a class="btn small" href="build.html">Gallery Builder</a><button class="small btn-line" onclick="print()">Print this guide</button></div>
+
+  <section class="card">
+    <h2><span class="num">1</span> Before the project</h2>
+    <ul>
+      <li><b>Show the demo.</b> Open the <a href="view.html?g=demo">demo gallery</a> on a phone and point it at one of the demo pieces on the projector.</li>
+      <li><b>Pick the kind of animation.</b> Two that work well for a first run: a reversed process time-lapse (lowest tech load, good assessment evidence), or 2 to 5 seconds of hand-drawn movement over the finished piece.</li>
+      <li><b>Say the artwork rule early.</b> Bold, different shapes all over the page, strong contrast, nothing that repeats, no big plain areas. Minimal pieces and repeating patterns don't work, and it's better to know that before students start.</li>
+      <li><b>Set up one hand-in spot</b> (a Schoology assignment works). Each student hands in one file.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">2</span> While students work</h2>
+    <ul>
+      <li><b>Hand out the <a href="student.html">student handout</a>.</b> It has a QR code for the student page.</li>
+      <li><b>Students check their artwork before they animate.</b> On the student page they photograph the piece, crop it, and see in a few seconds whether a camera can recognize it. A piece that fails gets more detail now, not after the animation is done.</li>
+      <li><b>Students animate on top of the image the page saves.</b> That makes the video start on the finished artwork and match its shape.</li>
+      <li><b>Students try it themselves</b> with their own camera, then save one hand-in file. The file holds the image, the video, the title, their first name and last initial, and their statement.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">3</span> Build the gallery (about 10 minutes)</h2>
+    <ol>
+      <li>Download everything the students handed in. A bulk download zip is fine.</li>
+      <li>Open the <a href="build.html">Gallery Builder</a> on a laptop in Chrome or Edge. Name the gallery.</li>
+      <li>Drop the whole download onto the page. Hand-in files, loose photos and videos, folders and zips all work.</li>
+      <li>Look at anything outlined in orange or red. Most video problems have a button that fixes them. <b>Copy a fix list for students</b> gives you a message to paste for the rest.</li>
+      <li>Click <b>Try it with this computer's camera</b> and hold a piece up to the webcam.</li>
+      <li>Click <b>Build gallery</b>. Share the zip with your Digital Learning Coordinator from OneDrive (it is usually too big for email). They publish it. Keep the zip: it is also your saved project.</li>
+      <li>When the link is live, come back to the builder and print the poster and labels.</li>
+    </ol>
+    <p class="help">Late piece? Open the builder, choose "Continue a gallery", open your saved zip, drop in the new hand-in and build again.</p>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">4</span> Gallery day</h2>
+    <ul>
+      <li><b>Hang each label beside its piece</b> and the poster at the door. The poster's code opens the whole gallery. Each label's code opens that student's piece, which families can share.</li>
+      <li><b>Light the work evenly.</b> Glare is the most common reason a piece won't wake up. Avoid glass, lamination and glossy sleeves.</li>
+      <li><b>Hang pieces flat</b> and leave room to stand back. The whole artwork has to fit in the camera view.</li>
+      <li><b>Test three pieces with a phone</b> on the school Wi-Fi before visitors arrive.</li>
+      <li><b>No phone?</b> "Preview without a camera" on the first screen shows every piece and its animation. Leave an iPad on a stand for visitors who would rather not scan.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">5</span> Privacy</h2>
+    <ul>
+      <li><b>Galleries are public web pages.</b> Anyone with the link can open one. Use a first name and last initial only.</li>
+      <li><b>What goes online:</b> the artwork image, the video, the title, the artist label and the statement. File names, photo location data and camera details are erased before anything is packed.</li>
+      <li><b>Faces and voices.</b> If a video shows a student's face or voice, check media consent the same way you would for anything posted publicly.</li>
+      <li><b>AI video tools.</b> Any AI tool that takes student artwork or faces goes through the school's AI review first. Ask your Digital Learning Coordinator.</li>
+      <li><b>Nothing is collected from viewers.</b> The camera image never leaves the phone. There are no accounts and no analytics.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>When something goes wrong</h2>
+    <table>
+      <thead><tr><th>What you see</th><th>What to do</th></tr></thead>
+      <tbody>
+        <tr><td>A piece never wakes up</td><td>Step back so the whole piece is in view. Check for glare. If the builder said the camera can't recognize it, it needs more detail; the label's own QR code still plays the animation in preview.</td></tr>
+        <tr><td>The animation appears but looks stretched or jumps</td><td>The video's shape or first frame doesn't match the artwork. Use "Crop the video to fit" in the builder, or have the student re-export from the saved image.</td></tr>
+        <tr><td>"Camera access was blocked"</td><td>iPad or iPhone: tap "aA" in the address bar, Website Settings, Camera, Allow, then reload. Android: tap the lock icon by the address and allow Camera.</td></tr>
+        <tr><td>The QR code opens inside another app</td><td>Choose "Open in browser" (Safari or Chrome).</td></tr>
+        <tr><td>No sound</td><td>Tap the speaker button. Phones only play sound after a tap.</td></tr>
+        <tr><td>"This device can't read that video format"</td><td>The video is an iPhone HEVC file and this computer can't decode it. Open the builder on a Mac, or have the student open the student page in Safari on the iPhone or iPad and press Convert there.</td></tr>
+        <tr><td>An old version of the gallery shows up</td><td>Reload the page. Each build carries a new version number, so a reload always gets the latest.</td></tr>
+      </tbody>
+    </table>
+  </section>
+</div>
+</body>
+</html>

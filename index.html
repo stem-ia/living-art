@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Living Art</title>
+<meta name="description" content="Student artwork that comes alive when you point a phone at it. Built at STEM Innovation Academy.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%2317151d%27/%3E%3Crect x=%278%27 y=%277%27 width=%2716%27 height=%2718%27 rx=%271.5%27 fill=%27none%27 stroke=%27%23dcb45f%27 stroke-width=%272.4%27/%3E%3Cpath d=%27M14 12.5v7l6-3.5z%27 fill=%27%23f3ecdb%27/%3E%3C/svg%3E">
+<link rel="stylesheet" href="lib/app.css">
+<style>
+  body { background: var(--ink); overflow-x: hidden; }
+  main { width: 100%; max-width: 100%; overflow-x: hidden; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; }
+  nav .brand { font-family: var(--serif); font-size: 20px; color: var(--paper); text-decoration: none; }
+  nav .brand span { color: var(--gold); font-style: italic; font-weight: 400; }
+  nav .links { display: flex; gap: 22px; font-size: 15px; }
+  nav .links a { color: var(--muted); text-decoration: none; }
+  nav .links a:hover { color: var(--paper); }
+
+  .hero { display: grid; grid-template-columns: 1.35fr .65fr; gap: 40px; align-items: center; padding: clamp(40px, 8vw, 96px) 0 clamp(48px, 8vw, 110px); }
+  .eyebrow { font: 600 12px/1 var(--sans); letter-spacing: .22em; text-transform: uppercase; color: var(--gold); }
+  .hero h1 { font-size: clamp(2.4rem, 5.2vw, 4.2rem); margin: 16px 0 18px; max-width: 100%; }
+  .hero h1 .pill { display: inline-block; vertical-align: middle; width: 1.55em; height: .78em; border-radius: 999px; background-size: cover; background-position: center; margin: 0 .08em; box-shadow: inset 0 0 0 2px rgba(243,236,219,.25); transform: translateY(-.06em); }
+  .hero p { color: var(--muted); font-size: 18px; line-height: 1.55; margin: 0 0 28px; max-width: 48ch; }
+  .stack-art { position: relative; height: 340px; }
+  .stack-art img { position: absolute; width: 56%; border-radius: 3px; box-shadow: 0 22px 50px rgba(0,0,0,.55); border: 6px solid var(--paper); transition: transform .8s var(--spring); }
+  .stack-art img:nth-child(1) { left: 0; top: 40px; transform: rotate(-7deg); }
+  .stack-art img:nth-child(2) { right: 0; top: 0; transform: rotate(5deg); }
+  .stack-art img:nth-child(3) { left: 24%; top: 80px; width: 50%; transform: rotate(-1deg); }
+  .stack-art:hover img:nth-child(3) { transform: rotate(0) translateY(-8px); }
+
+  section { padding: clamp(40px, 7vw, 88px) 0; border-top: 1px solid rgba(243,236,219,.1); }
+  h2 { font-size: clamp(26px, 3.4vw, 36px); margin-bottom: 22px; }
+  .lead { color: var(--muted); font-size: 17px; max-width: 60ch; margin: -8px 0 28px; }
+
+  /* Try it */
+  .try { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+  .try ol { margin: 0; padding-left: 22px; font-size: 17px; line-height: 1.7; color: var(--paper); }
+  .demo-art { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .demo-art a { display: block; border-radius: 6px; overflow: hidden; background: #0e0d13; aspect-ratio: 3 / 4; }
+  .demo-art img { width: 100%; height: 100%; object-fit: contain; display: block; transition: transform .7s ease; }
+  .demo-art a:hover img { transform: scale(1.05); }
+
+  /* Horizontal accordion */
+  .acc { display: flex; gap: 10px; height: 420px; }
+  .acc .slice { position: relative; flex: 1; min-width: 0; border-radius: 14px; overflow: hidden; background: var(--ink-2); cursor: pointer; transition: flex 0.6s var(--spring); }
+  .acc .slice.open { flex: 3.2; }
+  .acc .slice .img { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: .55; filter: saturate(.8); transition: opacity .6s ease; }
+  .acc .slice::after { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent 35%, rgba(23,21,29,.92)); pointer-events: none; }
+  .acc .slice .vert, .acc .slice .body { z-index: 1; }
+  .acc .slice.open .img { opacity: .28; }
+  .acc .slice .vert { position: absolute; left: 0; right: 0; bottom: 22px; writing-mode: vertical-rl; transform: rotate(180deg); font: 560 22px var(--serif); color: var(--paper); padding-left: 0; margin: 0 auto; opacity: 1; transition: opacity .3s ease; }
+  .acc .slice.open .vert { opacity: 0; }
+  .acc .slice .body { position: absolute; inset: 0; padding: 28px; display: flex; flex-direction: column; justify-content: flex-end; opacity: 0; transform: translateY(10px); transition: opacity .4s ease .15s, transform .5s var(--spring) .15s; }
+  .acc .slice.open .body { opacity: 1; transform: none; }
+  .acc .slice .body b { font: 560 30px var(--serif); display: block; margin-bottom: 8px; }
+  .acc .slice .body p { color: var(--paper); opacity: .9; margin: 0; font-size: 16px; line-height: 1.55; max-width: 44ch; }
+
+  /* Tips */
+  .tips { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; }
+  .tips ul { margin: 0; padding-left: 18px; color: var(--muted); line-height: 1.65; font-size: 16px; }
+  .tips b { color: var(--paper); font-weight: 600; }
+  .tips h3 { font-size: 24px; margin-bottom: 12px; }
+
+  /* Privacy + CTA */
+  .cta { background: var(--paper); color: var(--ink); border-radius: 22px; padding: clamp(32px, 5vw, 56px); display: grid; grid-template-columns: 1.2fr .8fr; gap: 30px; align-items: center; }
+  .cta h2 { color: var(--ink); margin-bottom: 10px; }
+  .cta p { margin: 0; color: #5a4f3e; font-size: 16.5px; line-height: 1.55; max-width: 52ch; }
+  .cta .btn { background: var(--ink); color: var(--paper); justify-self: end; }
+  footer { padding: 30px 0 50px; color: var(--muted); font-size: 13.5px; line-height: 1.6; }
+
+  @media (max-width: 820px) {
+    .hero, .try, .tips, .cta { grid-template-columns: 1fr; }
+    .stack-art { height: 240px; margin: 8px 6px 0; }
+    .stack-art img { width: 52%; }
+    .stack-art img:nth-child(3) { width: 46%; }
+    .cta .btn { justify-self: start; }
+    .acc { flex-direction: column; height: auto; }
+    .acc .slice { min-height: 64px; }
+    .acc .slice.open { flex: 1; min-height: 240px; }
+    .acc .slice .vert { writing-mode: horizontal-tb; transform: none; left: 22px; right: auto; bottom: 20px; }
+    nav .links { gap: 14px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+<main>
+<div class="wrap">
+  <nav>
+    <a class="brand" href="./">Living <span>Art</span></a>
+    <div class="links"><a href="view.html?g=demo">Demo</a><a href="student.html">Students</a><a href="teacher.html">Teachers</a><a href="build.html">Builder</a></div>
+  </nav>
+
+  <div class="hero">
+    <div>
+      <div class="eyebrow">STEM Innovation Academy</div>
+      <h1>Art that <span class="pill" style="background-image:url(galleries/demo/art/02.jpg)" role="img" aria-label="Lantern Harbour, a demo artwork"></span> wakes up when you point a phone at it.</h1>
+      <p>Students finish a piece, animate it, and hang it up. Anyone with a phone scans one code and every artwork in the room comes alive. No app, no account.</p>
+      <a class="btn" href="view.html?g=demo">Open the demo gallery</a>
+    </div>
+    <div class="stack-art" aria-hidden="true">
+      <img src="galleries/demo/art/02.jpg" alt="">
+      <img src="galleries/demo/art/03.jpg" alt="">
+      <img src="galleries/demo/art/01.jpg" alt="">
+    </div>
+  </div>
+
+  <section id="try">
+    <h2 class="reveal">Try it in two minutes</h2>
+    <div class="try">
+      <ol class="reveal">
+        <li>Open one of these three demo pieces on a laptop screen, or print it.</li>
+        <li>On a phone or iPad, open the <a href="view.html?g=demo">demo gallery</a> and tap <b>Start the camera</b>.</li>
+        <li>Point the camera at the artwork. The same code works for all three.</li>
+      </ol>
+      <div class="demo-art reveal">
+        <a href="galleries/demo/art/01.jpg" target="_blank"><img src="galleries/demo/art/01.jpg" alt="The Placeholder Isles"></a>
+        <a href="galleries/demo/art/02.jpg" target="_blank"><img src="galleries/demo/art/02.jpg" alt="Lantern Harbour"></a>
+        <a href="galleries/demo/art/03.jpg" target="_blank"><img src="galleries/demo/art/03.jpg" alt="Garden Study No. 3"></a>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <h2 class="reveal">How a class gallery comes together</h2>
+    <p class="lead reveal">Four steps. Students do the first two. The teacher does the rest in about ten minutes.</p>
+    <div class="acc reveal" id="acc">
+      <div class="slice open"><div class="img" style="background-image:url(galleries/demo/art/03.jpg)"></div><div class="vert">Make</div><div class="body"><b>Make</b><p>Students finish a piece, photograph it on the <a href="piece.html">student page</a>, and find out in a few seconds whether a camera can recognize it. Then they animate on top of that photo, so the piece seems to wake up rather than get covered by a video.</p></div></div>
+      <div class="slice"><div class="img" style="background-image:url(galleries/demo/art/01.jpg)"></div><div class="vert">Hand in</div><div class="body"><b>Hand in</b><p>Each student tries the piece with their own camera, types a title and a statement, and hands in one file. Schoology, OneDrive or a shared folder all work. The <a href="student.html">student handout</a> walks them through it.</p></div></div>
+      <div class="slice"><div class="img" style="background-image:url(galleries/demo/art/02.jpg)"></div><div class="vert">Build</div><div class="body"><b>Build</b><p>Drop everything into the <a href="build.html">Gallery Builder</a>. It sorts the files, fixes oversized and wrong-format videos, erases location data, lets you try the gallery, and packs one zip plus printable labels.</p></div></div>
+      <div class="slice"><div class="img" style="background-image:url(galleries/demo/art/03.jpg)"></div><div class="vert">Show</div><div class="body"><b>Show</b><p>The Digital Learning Coordinator publishes the zip. Print the poster and labels and hang them beside the work. Each label also opens that student's own piece, so families can share it.</p></div></div>
+    </div>
+  </section>
+
+  <section id="tips">
+    <div class="tips">
+      <div class="reveal">
+        <h3>Artwork that tracks well</h3>
+        <ul>
+          <li><b>Bold, different shapes all over the page.</b> Outlines, texture, lettering, a detailed background.</li>
+          <li><b>High contrast.</b> Darks next to lights.</li>
+          <li><b>Nothing that repeats.</b> Grids, tiles, stripes and rows of identical shapes look the same to a camera everywhere.</li>
+          <li><b>No big plain areas.</b> A few flat shapes on a blank page give the camera nothing to hold.</li>
+          <li><b>Matte, flat and well lit.</b> Glare and curled paper hide detail.</li>
+          <li><b>Photo cropped to the edges</b> of the artwork, taken straight on.</li>
+        </ul>
+      </div>
+      <div class="reveal">
+        <h3>Videos that look right</h3>
+        <ul>
+          <li><b>First frame = the finished artwork.</b> This makes the piece come alive instead of a video popping up.</li>
+          <li><b>Same shape</b> as the artwork photo.</li>
+          <li><b>MP4</b>, 5 to 15 seconds. The student page and the builder shrink large videos and convert iPhone HEVC video, which Chromebooks can't play.</li>
+          <li><b>Sound is optional.</b> Viewers tap the speaker to hear it.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="cta reveal">
+      <div>
+        <h2>Nothing is collected</h2>
+        <p>Living Art runs in the browser. The camera image never leaves the viewer's phone. There are no accounts, no analytics and no uploads from viewers. What goes online is the artwork, its video, a title and a first name with last initial. The student page and the builder erase file names, photo location data and camera details before anything is published.</p>
+      </div>
+      <a class="btn" href="teacher.html">Read the teacher guide</a>
+    </div>
+  </section>
+
+  <footer>Built on <a href="https://github.com/hiukim/mind-ar-js">MindAR</a> and <a href="https://threejs.org">three.js</a>, both MIT licensed. Type: Fraunces, Outfit and JetBrains Mono, all open licence.</footer>
+</div>
+</main>
+<script>
+  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('.reveal').forEach((el, i) => { el.style.transitionDelay = `${(i % 3) * 80}ms`; io.observe(el); });
+  const acc = document.getElementById('acc');
+  const open = (s) => { acc.querySelectorAll('.slice').forEach((x) => x.classList.toggle('open', x === s)); };
+  acc.querySelectorAll('.slice').forEach((s) => { s.addEventListener('mouseenter', () => open(s)); s.addEventListener('click', () => open(s)); s.tabIndex = 0; s.addEventListener('focus', () => open(s)); });
+</script>
+</body>
+</html>

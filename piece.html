@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#17151d">
+<title>My piece · Living Art</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%2317151d%27/%3E%3Crect x=%278%27 y=%277%27 width=%2716%27 height=%2718%27 rx=%271.5%27 fill=%27none%27 stroke=%27%23dcb45f%27 stroke-width=%272.4%27/%3E%3Cpath d=%27M14 12.5v7l6-3.5z%27 fill=%27%23f3ecdb%27/%3E%3C/svg%3E">
+<link rel="stylesheet" href="lib/app.css">
+<link rel="stylesheet" href="lib/paper.css">
+<style>
+  .lede { font-size: 16.5px; color: #5a4f3e; margin: 0; line-height: 1.5; }
+  .two { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .thumb { width: 100%; border-radius: 8px; background: #2a2630; display: block; box-shadow: 0 6px 18px rgba(60,40,10,.18); }
+  video.thumb { max-height: 340px; object-fit: contain; }
+  .card.locked { opacity: .55; }
+  .card.locked .body { pointer-events: none; }
+  .tipline { font-size: 14.5px; line-height: 1.5; margin: 14px 0 0; padding: 12px 14px; background: var(--ink); color: var(--paper); border-radius: 12px; }
+  .tipline b { color: var(--gold); font-weight: 600; }
+
+  /* crop and straighten */
+  #crop-stage { position: relative; margin: 0 auto; touch-action: none; user-select: none; -webkit-user-select: none; background: #2a2630; border-radius: 8px; overflow: hidden; }
+  #crop-canvas { display: block; width: 100%; height: 100%; }
+  #crop-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .handle { position: absolute; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; cursor: grab; touch-action: none; display: grid; place-items: center; }
+  .handle::after { content: ""; width: 20px; height: 20px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 3px var(--ink), 0 2px 8px rgba(0,0,0,.5); }
+  .handle:active { cursor: grabbing; }
+  .handle:focus-visible { outline: 2px solid var(--paper); }
+  .count { float: right; font: 500 12px var(--mono); color: #8d7a45; }
+  #ready-list li.ok span { color: #3f6d4d; }
+  .big { font-size: 17px; padding: 17px 26px; }
+  .saved { background: #e3efdf; border: 1px solid #a9cbb0; color: #2f5a3c; padding: 14px 16px; border-radius: 12px; margin-top: 14px; font-size: 15px; line-height: 1.5; }
+  @media (max-width: 640px) { .two { grid-template-columns: 1fr; } .thumb { max-height: 46vh; object-fit: contain; } }
+</style>
+<script src="lib/jszip.min.js"></script>
+</head>
+<body class="paper">
+<div class="top"><h1><a href="./">Living Art</a> <span>My piece</span></h1><nav><a href="student.html">How to make it</a><a href="view.html?g=demo">See the demo</a></nav></div>
+
+<main class="cols narrow">
+  <section class="card" id="welcome">
+    <p class="lede">Get your piece ready here. Nothing is uploaded: your photo and video stay on this device until you hand in the file at the end. <span id="welcome-back" class="hidden"><br><b>Welcome back. Your work from last time is still here.</b> <button class="small btn-line" id="reset" style="margin-left:6px">Start over</button></span></p>
+  </section>
+
+  <!-- 1 -->
+  <section class="card" id="s1">
+    <h2><span class="num" id="n1">1</span> Photo of your artwork <small>do this before you animate</small></h2>
+    <div class="body">
+      <div class="dropzone" id="art-drop">
+        <strong>Take a photo of your finished artwork, or choose one.</strong><br>
+        Straight on, even light, no glare, the whole piece in the shot.
+        <div class="inline"><button id="art-pick">Take or choose a photo</button></div>
+        <input type="file" id="art-input" accept="image/*,.heic,.heif" hidden>
+      </div>
+      <ul class="checks" id="art-open-checks"></ul>
+
+      <div id="crop" class="hidden">
+        <div id="crop-stage">
+          <canvas id="crop-canvas"></canvas>
+          <svg id="crop-svg" preserveAspectRatio="none"><path id="crop-mask" fill="rgba(23,21,29,.55)" fill-rule="evenodd"/><polygon id="crop-poly" fill="none" stroke="#dcb45f" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>
+          <div class="handle" data-i="0" tabindex="0" role="slider" aria-label="Top left corner"></div>
+          <div class="handle" data-i="1" tabindex="0" role="slider" aria-label="Top right corner"></div>
+          <div class="handle" data-i="2" tabindex="0" role="slider" aria-label="Bottom right corner"></div>
+          <div class="handle" data-i="3" tabindex="0" role="slider" aria-label="Bottom left corner"></div>
+        </div>
+        <p class="help">Drag the four gold dots onto the four corners of your artwork. The page crops to them and straightens the picture.</p>
+        <div class="inline" style="margin-top:10px">
+          <button id="crop-apply">Crop and straighten</button>
+          <button id="crop-rotate" class="btn-line small">Rotate</button>
+          <button id="crop-whole" class="btn-line small">It's already cropped</button>
+        </div>
+      </div>
+
+      <div id="art-done" class="hidden">
+        <div class="two">
+          <img id="art-img" class="thumb" alt="Your artwork">
+          <div>
+            <ul class="checks" id="art-checks"></ul>
+            <div class="inline" style="margin-top:14px">
+              <button id="art-save">Save this image</button>
+              <button id="art-redo" class="btn-line small">Change the photo</button>
+            </div>
+          </div>
+        </div>
+        <p class="tipline"><b>Animate on top of this exact image.</b> Save it, then bring it into your animation app as the first frame or the bottom layer. Your video then starts on your finished artwork and has the right shape.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="card locked" id="s2">
+    <h2><span class="num" id="n2">2</span> Your animation</h2>
+    <div class="body">
+      <div class="dropzone" id="vid-drop">
+        <strong>Add the video of your artwork coming alive.</strong><br>
+        5 to 15 seconds. It starts on your finished artwork, then things move.
+        <div class="inline"><button id="vid-pick">Choose the video</button></div>
+        <input type="file" id="vid-input" accept="video/*,.mov,.mp4,.m4v,.webm" hidden>
+      </div>
+      <div id="vid-done" class="hidden">
+        <div class="two">
+          <video id="vid-el" class="thumb" muted loop playsinline controls preload="metadata"></video>
+          <div>
+            <ul class="checks" id="vid-checks"></ul>
+            <div class="progress hidden" id="vid-prog"><div></div></div>
+            <div class="inline" style="margin-top:14px"><button id="vid-redo" class="btn-line small">Change the video</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="card locked" id="s3">
+    <h2><span class="num" id="n3">3</span> Try it</h2>
+    <div class="body">
+      <p class="lede">See what visitors will see. Point this device's camera at your real artwork, a print of it, or the photo on another screen.</p>
+      <div class="inline" style="margin-top:14px"><button id="try-btn">Try it with my camera</button></div>
+      <p class="help">If the animation looks stretched or jumps when it starts, fix the video in step 2 and try again.</p>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="card locked" id="s4">
+    <h2><span class="num" id="n4">4</span> Hand it in</h2>
+    <div class="body">
+      <div class="fields-2">
+        <div><label for="f-title">Title of your piece</label><input type="text" id="f-title" maxlength="80" autocomplete="off"></div>
+        <div><label for="f-artist">Your first name and last initial</label><input type="text" id="f-artist" maxlength="40" placeholder="Maya W." autocomplete="off"></div>
+      </div>
+      <div style="margin-top:14px">
+        <label for="f-statement">Artist statement (optional) <span class="count" id="f-count"></span></label>
+        <textarea id="f-statement" maxlength="400" placeholder="A few sentences about your piece: what it shows, and why it moves the way it does."></textarea>
+      </div>
+      <ul class="checks" id="ready-list" style="margin-top:14px"></ul>
+      <div class="inline" style="margin-top:16px">
+        <button id="hand-btn" class="big" disabled>Save my hand-in file</button>
+        <button id="share-btn" class="btn-line hidden">Share it instead</button>
+      </div>
+      <div class="status" id="hand-status"></div>
+      <div id="saved" class="saved hidden"></div>
+      <p class="help">Only your title, your first name and last initial, your statement, the artwork image and the video go into the file. Phone location data is erased.</p>
+    </div>
+  </section>
+</main>
+
+<script type="module">
+import * as S from './lib/studio.js';
+
+const $ = (id) => document.getElementById(id);
+const st = { pid: S.shortId(), work: null, quad: null, art: null, target: null, compiling: false, artChecks: [], vid: null, match: null, matchChecks: [], fixing: false, fixNotes: [] };
+window.__LAP = st;
+
+// ---------------------------------------------------------------- step 1: the photo
+$('art-pick').onclick = () => $('art-input').click();
+$('art-input').onchange = (e) => { const f = e.target.files[0]; e.target.value = ''; if (f) choosePhoto(f); };
+dropTarget($('art-drop'), (files) => { const f = files.find(S.isImg); if (f) choosePhoto(f); });
+
+async function choosePhoto(file) {
+  S.paintChecks($('art-open-checks'), [{ level: 'busy', text: 'Opening the photo…' }]);
+  const r = await S.readImage(file);
+  if (!r.ok) { S.paintChecks($('art-open-checks'), r.checks); return; }
+  S.paintChecks($('art-open-checks'), []);
+  st.work = S.scaledCanvas(r.el, r.w, r.h, 2000);
+  URL.revokeObjectURL(r.url);
+  startCrop();
+}
+function startCrop() {
+  st.quad = [{ x: .04, y: .04 }, { x: .96, y: .04 }, { x: .96, y: .96 }, { x: .04, y: .96 }];
+  $('art-drop').classList.add('hidden'); $('art-done').classList.add('hidden'); $('crop').classList.remove('hidden');
+  layoutCrop();
+}
+function layoutCrop() {
+  if (!st.work || $('crop').classList.contains('hidden')) return;
+  const stage = $('crop-stage'), c = $('crop-canvas');
+  const maxW = $('crop').clientWidth, maxH = Math.max(260, innerHeight * 0.6);
+  const k = Math.min(maxW / st.work.width, maxH / st.work.height);
+  stage.style.width = `${Math.round(st.work.width * k)}px`; stage.style.height = `${Math.round(st.work.height * k)}px`;
+  if (c.width !== st.work.width || c.height !== st.work.height || c._src !== st.work) {
+    c.width = st.work.width; c.height = st.work.height; c.getContext('2d').drawImage(st.work, 0, 0); c._src = st.work;
+  }
+  $('crop-svg').setAttribute('viewBox', '0 0 100 100');
+  paintQuad();
+}
+function paintQuad() {
+  const pts = st.quad.map((p) => `${(p.x * 100).toFixed(2)},${(p.y * 100).toFixed(2)}`);
+  $('crop-poly').setAttribute('points', pts.join(' '));
+  $('crop-mask').setAttribute('d', `M0,0H100V100H0Z M${pts.join(' L')}Z`);
+  document.querySelectorAll('.handle').forEach((h) => { const p = st.quad[+h.dataset.i]; h.style.left = `${p.x * 100}%`; h.style.top = `${p.y * 100}%`; });
+}
+document.querySelectorAll('.handle').forEach((h) => {
+  const i = +h.dataset.i;
+  const move = (ev) => {
+    const r = $('crop-stage').getBoundingClientRect();
+    st.quad[i] = { x: Math.min(1, Math.max(0, (ev.clientX - r.left) / r.width)), y: Math.min(1, Math.max(0, (ev.clientY - r.top) / r.height)) };
+    paintQuad();
+  };
+  h.addEventListener('pointerdown', (ev) => { ev.preventDefault(); h.setPointerCapture(ev.pointerId); h.onpointermove = move; });
+  const end = (ev) => { h.onpointermove = null; try { h.releasePointerCapture(ev.pointerId); } catch {} };
+  h.addEventListener('pointerup', end); h.addEventListener('pointercancel', end);
+  h.addEventListener('keydown', (ev) => {
+    const d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[ev.key];
+    if (!d) return; ev.preventDefault();
+    const step = ev.shiftKey ? .02 : .005, p = st.quad[i];
+    st.quad[i] = { x: Math.min(1, Math.max(0, p.x + d[0] * step)), y: Math.min(1, Math.max(0, p.y + d[1] * step)) }; paintQuad();
+  });
+});
+addEventListener('resize', layoutCrop);
+$('crop-rotate').onclick = () => {
+  const c = document.createElement('canvas'); c.width = st.work.height; c.height = st.work.width;
+  const x = c.getContext('2d'); x.translate(c.width, 0); x.rotate(Math.PI / 2); x.drawImage(st.work, 0, 0);
+  st.work = c; startCrop();
+};
+$('crop-whole').onclick = () => setArt(st.work.width > 1600 || st.work.height > 1600 ? S.scaledCanvas(st.work, st.work.width, st.work.height, 1600) : st.work);
+$('crop-apply').onclick = async () => {
+  $('crop-apply').disabled = true; $('crop-apply').textContent = 'Straightening…';
+  await new Promise((r) => setTimeout(r, 30));
+  try {
+    const q = st.quad.map((p) => ({ x: p.x * st.work.width, y: p.y * st.work.height }));
+    await setArt(S.warpQuad(st.work, q, 1600));
+  } finally { $('crop-apply').disabled = false; $('crop-apply').textContent = 'Crop and straighten'; }
+};
+$('art-redo').onclick = () => {
+  if (st.work) { startCrop(); return; }
+  $('art-done').classList.add('hidden'); $('art-drop').classList.remove('hidden');
+};
+$('art-save').onclick = () => S.download(st.art.blob, `${S.slug($('f-artist').value) || 'my-artwork'}-artwork.jpg`);
+
+async function setArt(canvas) { return setArtBlob(await S.canvasBlob(canvas, 0.92)); }
+async function setArtBlob(blob, keepTarget) {
+  if (st.art?.url) URL.revokeObjectURL(st.art.url);
+  const url = URL.createObjectURL(blob);
+  const el = await S.loadImage(url);
+  st.art = { blob, url, el, w: el.naturalWidth, h: el.naturalHeight };
+  st.artChecks = [];
+  const short = Math.min(st.art.w, st.art.h), ratio = st.art.w / st.art.h;
+  if (short < 500) st.artChecks.push({ level: 'warn', text: `Small image (${st.art.w}×${st.art.h}). Move closer or use a better camera so the short side is at least 1000 px.` });
+  if (ratio > 2.6 || ratio < 1 / 2.6) st.artChecks.push({ level: 'warn', text: 'Very long, thin artwork is hard for the camera to hold. Between square and about 2:1 works best.' });
+  $('art-img').src = url;
+  $('crop').classList.add('hidden'); $('art-drop').classList.add('hidden'); $('art-done').classList.remove('hidden');
+  if (!keepTarget) { st.target = null; runTracking(); }
+  paint(); save();
+  if (st.vid?.ok) recheckMatch();
+}
+function runTracking() {
+  const art = st.art;
+  st.compiling = true; paint();
+  S.compileTarget(art.el, art.w, art.h, () => st.art === art).then((t) => {
+    if (st.art !== art) return;
+    st.target = t; st.compiling = false; paint();
+  }).catch((e) => {
+    console.log('[LAP] compile error', e);
+    if (st.art !== art) return;
+    st.compiling = false; st.artChecks.push({ level: 'bad', text: 'The tracking test couldn\'t run on this photo. Try a different photo.' }); paint();
+  });
+}
+
+// ---------------------------------------------------------------- step 2: the video
+$('vid-pick').onclick = () => $('vid-input').click();
+$('vid-input').onchange = (e) => { const f = e.target.files[0]; e.target.value = ''; if (f) chooseVideo(f); };
+$('vid-redo').onclick = () => $('vid-input').click();
+dropTarget($('vid-drop'), (files) => { const f = files.find(S.isVid); if (f) chooseVideo(f); });
+
+async function chooseVideo(file, notes = []) {
+  $('vid-drop').classList.add('hidden'); $('vid-done').classList.remove('hidden');
+  S.paintChecks($('vid-checks'), [{ level: 'busy', text: 'Checking the video…' }]);
+  if (st.vid?.url) URL.revokeObjectURL(st.vid.url);
+  const r = await S.readVideo(file);
+  st.vid = { ...r, file, pub: r.cleanBlob ? new File([r.cleanBlob], file.name, { type: 'video/mp4' }) : file };
+  st.fixNotes = notes; st.match = null; st.matchChecks = [];
+  $('vid-el').src = r.url; $('vid-el').classList.toggle('hidden', !r.ok);
+  if (r.ok) { $('vid-el').play().catch(() => {}); await recheckMatch(); }
+  paint(); save();
+}
+async function recheckMatch() {
+  if (!st.art || !st.vid?.ok) return;
+  const m = await S.matchCheck(st.art, st.vid);
+  st.match = m.corr; st.matchChecks = m.checks;
+  paint();
+}
+async function fix(id, btn) {
+  if (st.fixing) return;
+  st.fixing = true; btn.disabled = true; btn.textContent = 'Working…';
+  const prog = $('vid-prog'); prog.classList.remove('hidden'); prog.firstElementChild.style.width = '2%';
+  try {
+    const r = await S.fixVideo(st.vid.file, { aspect: id === 'shape' ? st.art.w / st.art.h : 0, onProgress: (p) => (prog.firstElementChild.style.width = `${Math.round(p * 100)}%`) });
+    const notes = [{ level: 'info', text: id === 'shape' ? 'The video was cropped to your artwork\'s shape.' : `The video was converted to a small MP4 (${(r.file.size / 1048576).toFixed(1)} MB).` }];
+    if (r.audioDropped) notes.push({ level: 'warn', text: 'The sound couldn\'t be kept on this device. If your piece needs sound, export the video again as MP4 at 720p.' });
+    st.fixing = false;
+    await chooseVideo(r.file, notes);
+  } catch (e) {
+    st.fixNotes = [{ level: 'bad', text: e.message }];
+    paint();
+  } finally { st.fixing = false; prog.classList.add('hidden'); }
+}
+
+// ---------------------------------------------------------------- step 3: try it
+$('try-btn').onclick = () => {
+  if (!st.art || !st.vid?.ok || !st.target) return;
+  const vext = S.ext(st.vid.pub) === 'webm' ? 'webm' : 'mp4';
+  S.openTryIt({
+    gallery: { title: $('f-title').value.trim() || 'My piece', subtitle: 'Not handed in yet', id: 'local', loop: true,
+      artworks: [{ id: st.pid, title: $('f-title').value.trim() || 'My piece', artist: $('f-artist').value.trim(), statement: $('f-statement').value.trim(), image: 'art/01.jpg', video: `video/01.${vext}`, w: st.art.w, h: st.art.h }] },
+    files: { 'art/01.jpg': st.art.blob, [`video/01.${vext}`]: st.vid.pub, 'targets.mind': new Blob([S.exportTargets([st.target])]) },
+  });
+};
+
+// ---------------------------------------------------------------- step 4: hand in
+for (const id of ['f-title', 'f-artist', 'f-statement']) $(id).addEventListener('input', () => { paint(); save(); });
+function blockers() {
+  const b = [];
+  if (!st.art) b.push('Add the photo of your artwork (step 1).');
+  else if (st.compiling || !st.target) b.push('Wait for the tracking test to finish (step 1).');
+  if (!st.vid) b.push('Add your animation video (step 2).');
+  else if (!st.vid.ok || st.vid.checks.some((c) => c.level === 'bad')) b.push('Fix the video problem marked in red (step 2).');
+  if (!$('f-title').value.trim()) b.push('Give your piece a title.');
+  if (!$('f-artist').value.trim()) b.push('Type your first name and last initial.');
+  return b;
+}
+async function makePackage() {
+  const art = await S.artJpeg(st.art.el, st.art.w, st.art.h);
+  return S.writePackage({ pid: st.pid, title: $('f-title').value.trim(), artist: $('f-artist').value.trim(), statement: $('f-statement').value.trim(),
+    w: st.art.w, h: st.art.h, artBlob: art, video: st.vid.pub, target: st.target, match: st.match });
+}
+const fileName = () => `${S.slug($('f-artist').value) || 'my-piece'}.${S.SPEC.PKG_EXT}`;
+$('hand-btn').onclick = async () => {
+  $('hand-status').textContent = 'Packing your file…';
+  const blob = await makePackage();
+  S.download(blob, fileName());
+  $('hand-status').textContent = '';
+  const s = $('saved'); s.classList.remove('hidden');
+  s.innerHTML = `<b>Saved as ${S.esc(fileName())}</b> (${(blob.size / 1048576).toFixed(1)} MB). Look in your Downloads or Files. Hand in that one file where your teacher asked for it. You don't need to hand in the photo or the video separately.`;
+  window.__handin = blob;
+};
+$('share-btn').onclick = async () => {
+  const file = new File([await makePackage()], fileName(), { type: 'application/octet-stream' });
+  try { await navigator.share({ files: [file], title: 'My Living Art piece' }); } catch {}
+};
+
+// ---------------------------------------------------------------- painting
+function paint() {
+  // step 1
+  const a = [...st.artChecks];
+  if (st.compiling) a.push({ level: 'busy', text: 'Testing how well a camera can track your artwork. This takes a few seconds…' });
+  else if (st.target) a.push(S.trackingCheck(st.target, true));
+  if (st.art && !st.compiling && st.target && S.trackingGrade(st.target.test) === 'strong') a.push({ level: 'info', text: 'Good to go. Save the image and start animating.' });
+  S.paintChecks($('art-checks'), a);
+  const done1 = !!st.art;
+  mark(1, done1 && !!st.target, false);
+  // step 2
+  mark(2, !!st.vid?.ok && !st.vid.checks.some((c) => c.level === 'bad'), !done1);
+  if (st.vid) {
+    const v = [...S.withFixes(st.vid.checks), ...S.withFixes(st.matchChecks), ...st.fixNotes];
+    if (st.vid.ok && !v.some((c) => c.level === 'bad' || c.level === 'warn')) v.push({ level: 'ok', text: 'Right format and size.' });
+    S.paintChecks($('vid-checks'), v, fix);
+  }
+  // step 3
+  const can3 = done1 && !!st.vid?.ok && !!st.target;
+  mark(3, false, !can3); $('try-btn').disabled = !can3;
+  // step 4
+  mark(4, false, !done1);
+  const b = blockers();
+  const warn = [];
+  if (st.target && ['weak', 'none'].includes(S.trackingGrade(st.target.test))) warn.push({ level: 'bad', text: 'The camera couldn\'t track your artwork in testing (step 1). You can hand it in, but it may not come alive on the wall. Tell your teacher.' });
+  S.paintChecks($('ready-list'), b.length ? b.map((t) => ({ level: 'info', text: t })) : [...warn, { level: 'ok', text: 'Everything is here. Save your hand-in file.' }]);
+  $('hand-btn').disabled = b.length > 0;
+  const canShare = !b.length && !!navigator.canShare && (() => { try { return navigator.canShare({ files: [new File([new Blob(['x'])], fileName(), { type: 'application/octet-stream' })] }); } catch { return false; } })();
+  $('share-btn').classList.toggle('hidden', !canShare);
+  $('f-count').textContent = `${$('f-statement').value.length}/400`;
+}
+function mark(n, done, locked) {
+  $('n' + n).classList.toggle('done', done); $('n' + n).textContent = done ? '✓' : n;
+  $('s' + n).classList.toggle('locked', locked);
+}
+function dropTarget(el, fn) {
+  ['dragenter', 'dragover'].forEach((e) => el.addEventListener(e, (ev) => { ev.preventDefault(); el.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach((e) => el.addEventListener(e, (ev) => { ev.preventDefault(); el.classList.remove('over'); }));
+  el.addEventListener('drop', (ev) => fn([...ev.dataTransfer.files]));
+}
+addEventListener('dragover', (e) => e.preventDefault());
+addEventListener('drop', (e) => e.preventDefault());
+
+// ---------------------------------------------------------------- remembered on this device
+let saveTimer = 0;
+function save() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    if (!st.art) return;
+    S.remember('piece', { pid: st.pid, art: st.art.blob, video: st.vid?.ok && st.vid.file.size < 40 * 1048576 ? st.vid.file : null,
+      title: $('f-title').value, artist: $('f-artist').value, statement: $('f-statement').value, saved: Date.now() });
+  }, 500);
+}
+$('reset').onclick = async () => { await S.forget('piece'); location.reload(); };
+(async () => {
+  paint();
+  const d = await S.recall('piece');
+  if (!d || !d.art) return;
+  st.pid = d.pid || st.pid;
+  $('f-title').value = d.title || ''; $('f-artist').value = d.artist || ''; $('f-statement').value = d.statement || '';
+  $('welcome-back').classList.remove('hidden');
+  await setArtBlob(d.art);
+  if (d.video) await chooseVideo(d.video);
+})();
+</script>
+</body>
+</html>

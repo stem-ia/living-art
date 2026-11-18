@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Living Art · Student handout</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%2317151d%27/%3E%3Crect x=%278%27 y=%277%27 width=%2716%27 height=%2718%27 rx=%271.5%27 fill=%27none%27 stroke=%27%23dcb45f%27 stroke-width=%272.4%27/%3E%3Cpath d=%27M14 12.5v7l6-3.5z%27 fill=%27%23f3ecdb%27/%3E%3C/svg%3E">
+<link rel="stylesheet" href="lib/app.css">
+<link rel="stylesheet" href="lib/paper.css">
+<style>
+  .sheet { max-width: 800px; margin: 0 auto; padding: 30px 20px 70px; }
+  .eyebrow { font: 600 12px/1 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: #8d7a45; }
+  h1 { font-size: clamp(32px, 6.4vw, 44px); margin: 10px 0 8px; }
+  .lede { font-size: 17px; color: #5a4f3e; margin: 0 0 22px; max-width: 62ch; }
+  .steps4 { display: grid; gap: 12px; counter-reset: s; }
+  .step { background: #faf6ec; border-radius: var(--radius); padding: 16px 18px 16px 62px; position: relative; }
+  .step::before { counter-increment: s; content: counter(s); position: absolute; left: 16px; top: 16px; width: 32px; height: 32px; border-radius: 50%; background: var(--ink); color: var(--gold); display: grid; place-items: center; font: 700 15px/1 var(--sans); }
+  .step h2 { font-size: 21px; margin-bottom: 6px; }
+  .step p { margin: 0 0 6px; font-size: 15.5px; line-height: 1.5; }
+  .step ul { margin: 4px 0 0; padding-left: 18px; font-size: 15px; line-height: 1.55; }
+  .step li b { font-weight: 600; }
+  .go { display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: center; margin-top: 14px; background: var(--ink); color: var(--paper); border-radius: var(--radius); padding: 16px 20px; }
+  .go h2 { font-size: 21px; margin-bottom: 6px; }
+  .go p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.5; }
+  .go code { color: var(--gold); font-size: 14.5px; word-break: break-all; }
+  .go .qr { background: #fff; padding: 8px; border-radius: 10px; width: 118px; height: 118px; }
+  .go .qr svg { width: 100%; height: 100%; display: block; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+  .box { background: #faf6ec; border-radius: var(--radius); padding: 14px 18px; font-size: 14.5px; line-height: 1.5; }
+  .box h3 { font-size: 18px; margin-bottom: 6px; }
+  .box ul { margin: 0; padding-left: 18px; }
+  .print { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+  @media (max-width: 640px) { .two, .go { grid-template-columns: 1fr; } }
+  @media print {
+    @page { size: letter; margin: 11mm; }
+    body.paper { background: #fff; }
+    .sheet { padding: 0; max-width: none; }
+    h1 { font-size: 30px; margin: 6px 0 4px; } .lede { font-size: 13.5px; margin-bottom: 10px; }
+    .step, .box { border: 1px solid #333; background: #fff; padding-top: 9px; padding-bottom: 9px; break-inside: avoid; }
+    .step::before { top: 10px; border: 1px solid #111; background: #fff; color: #111; }
+    .step h2, .go h2 { font-size: 16.5px; } .step p, .step ul, .box, .go p { font-size: 12px; line-height: 1.4; } .box h3 { font-size: 14.5px; }
+    .steps4 { gap: 6px; } .two { gap: 6px; margin-top: 6px; }
+    .go { background: #fff; color: #111; border: 1.5px solid #111; margin-top: 6px; padding: 10px 14px; } .go p, .go code { color: #111; }
+    .go .qr { width: 92px; height: 92px; padding: 0; }
+    .print, .top { display: none; }
+  }
+</style>
+<script src="lib/qrcode.js"></script>
+</head>
+<body class="paper">
+<div class="top"><h1 style="font-size:21px;margin:0"><a href="./">Living Art</a> <span>Student handout</span></h1><nav><a href="piece.html">My piece</a><a href="view.html?g=demo">See the demo</a></nav></div>
+<div class="sheet">
+  <div class="eyebrow">Living Art</div>
+  <h1>Make your artwork come alive</h1>
+  <p class="lede">When someone points a phone at your finished piece, a short animation plays on top of it, lined up exactly, so the art seems to wake up. You make two things: the artwork and the animation.</p>
+
+  <div class="steps4">
+    <div class="step">
+      <h2>Finish your artwork</h2>
+      <p>The camera has to recognize your piece, so give it something to recognize.</p>
+      <ul>
+        <li><b>Bold, different shapes all over the page.</b> Outlines, texture, lettering, a detailed background.</li>
+        <li><b>Strong contrast.</b> Darks next to lights.</li>
+        <li><b>Nothing that repeats.</b> Grids, tiles, stripes and rows of the same shape look identical to a camera.</li>
+        <li><b>No big plain areas.</b> An empty sky or a blank background gives the camera nothing to hold.</li>
+      </ul>
+    </div>
+    <div class="step">
+      <h2>Photograph it and check it, before you animate</h2>
+      <p>Open <b>My piece</b> (link and code below). Take a photo straight on, in even light, with no glare. Drag the four dots to the corners of your artwork and the page crops and straightens it. In a few seconds it tells you whether a camera can recognize your piece. If it can't, add detail now, while it's easy.</p>
+      <p>Then tap <b>Save this image</b>.</p>
+    </div>
+    <div class="step">
+      <h2>Animate on top of the saved image</h2>
+      <p>Bring the saved image into your animation app as the <b>first frame or bottom layer</b>, and build the movement on top of it. That way your video starts on your finished artwork and has the right shape.</p>
+      <ul>
+        <li><b>The first frame is your finished artwork.</b> Then things begin to move.</li>
+        <li><b>5 to 15 seconds.</b> End where you started and it loops smoothly.</li>
+        <li><b>Keep the picture still.</b> Turn off any automatic zoom or pan the app adds to photos.</li>
+        <li><b>Export as MP4</b> at 720p. Sound is optional. Viewers tap a speaker to hear it.</li>
+      </ul>
+    </div>
+    <div class="step">
+      <h2>Try it, then hand in one file</h2>
+      <p>Go back to <b>My piece</b> and add your video. The page checks it and can fix the size, format and shape for you. Tap <b>Try it with my camera</b> and point it at your artwork. When it looks right, type your title and your first name and last initial, add an artist statement if your teacher asked for one, and tap <b>Save my hand-in file</b>. Hand in that one file.</p>
+    </div>
+  </div>
+
+  <div class="go">
+    <div>
+      <h2>My piece</h2>
+      <p>Open it in Safari or Chrome on a phone, iPad, Chromebook or laptop. Nothing is uploaded. Your photo and video stay on your device.</p>
+      <p><code id="piece-url"></code></p>
+    </div>
+    <div class="qr" id="piece-qr" aria-label="QR code for My piece"></div>
+  </div>
+
+  <div class="two">
+    <div class="box">
+      <h3>Ways to animate</h3>
+      <ul>
+        <li><b>Draw frames</b> over your image in an animation or drawing app.</li>
+        <li><b>Layer and move</b> cut-out parts of your image in a video editor.</li>
+        <li><b>Show your process:</b> run your time-lapse backwards so it starts on the finished piece.</li>
+        <li><b>Stop motion:</b> shoot from a fixed spot and make the finished piece the first photo.</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>If My piece won't open</h3>
+      <ul>
+        <li>Hand in two files instead: the photo (JPG) and the video (MP4).</li>
+        <li>Name both with your first name and last initial: <code>maya-w.jpg</code> and <code>maya-w.mp4</code>.</li>
+        <li>Crop the photo to the edges of your artwork.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="print"><a class="btn" href="piece.html" style="background:var(--ink);color:var(--paper)">Open My piece</a><button class="btn-line" onclick="print()">Print this page</button></div>
+</div>
+<script>
+  const url = new URL('piece.html', location.href).href;
+  document.getElementById('piece-url').textContent = url.replace(/^https?:\/\//, '');
+  const q = qrcode(0, 'M'); q.addData(url); q.make();
+  document.getElementById('piece-qr').innerHTML = q.createSvgTag({ cellSize: 4, margin: 1, scalable: true });
+</script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Device test · Living Art</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%2317151d%27/%3E%3Crect x=%278%27 y=%277%27 width=%2716%27 height=%2718%27 rx=%271.5%27 fill=%27none%27 stroke=%27%23dcb45f%27 stroke-width=%272.4%27/%3E%3Cpath d=%27M14 12.5v7l6-3.5z%27 fill=%27%23f3ecdb%27/%3E%3C/svg%3E">
+<link rel="stylesheet" href="lib/app.css">
+<style>
+  body { background: #8f8a80; }
+  .wrap { display: grid; grid-template-columns: 340px 1fr; min-height: 100vh; }
+  aside { background: var(--ink); padding: 26px 24px; display: flex; flex-direction: column; gap: 14px; }
+  aside h1 { font-size: 26px; }
+  aside h1 span { color: var(--gold); font-style: italic; font-weight: 400; }
+  aside ol { margin: 0; padding-left: 20px; line-height: 1.55; font-size: 15px; color: var(--paper); }
+  aside li { margin-bottom: 8px; }
+  aside p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.5; }
+  .qr { background: #fff; padding: 10px; border-radius: 12px; width: 190px; height: 190px; }
+  .qr svg { width: 100%; height: 100%; display: block; }
+  .url { font: 500 12px var(--mono); color: var(--gold); word-break: break-all; }
+  .nav { display: flex; gap: 10px; align-items: center; margin-top: auto; }
+  .nav span { color: var(--muted); font-size: 14px; flex: 1; text-align: center; }
+  main { display: grid; place-items: center; padding: 4vh 4vw; }
+  main img { max-width: 100%; max-height: 90vh; box-shadow: 0 20px 60px rgba(0,0,0,.35); background: #fff; }
+  @media (max-width: 820px) { .wrap { grid-template-columns: 1fr; } }
+</style>
+<script src="lib/qrcode.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <aside>
+    <h1>Living Art <span>device test</span></h1>
+    <ol>
+      <li>Keep this page open on a laptop or projector.</li>
+      <li>On the phone, iPad or Chromebook you're testing, scan this code and tap <b>Start the camera</b>.</li>
+      <li>Point it at the artwork on the right. Wait for it to come alive, then tap the speaker.</li>
+      <li>Press <b>Next</b> here and find the other two pieces.</li>
+      <li>On the device, tap <b>Finish test</b>, then <b>Copy report</b>, and send the report to Ben.</li>
+    </ol>
+    <div class="qr" id="qr"></div>
+    <div class="url" id="url"></div>
+    <p>Test from where a visitor would stand, about an arm's length from the screen. Turn the screen brightness up and avoid reflections.</p>
+    <div class="nav"><button class="btn-ghost" id="prev" aria-label="Previous artwork">Back</button><span id="pos"></span><button id="next">Next</button></div>
+  </aside>
+  <main><img id="art" alt="Demo artwork"></main>
+</div>
+<script>
+  const g = (new URLSearchParams(location.search).get('g') || 'demo').replace(/[^a-z0-9_-]/gi, '');
+  const viewer = new URL(`view.html?g=${g}&test=1`, location.href).href;
+  const q = qrcode(0, 'M'); q.addData(viewer); q.make();
+  document.getElementById('qr').innerHTML = q.createSvgTag({ cellSize: 4, margin: 1, scalable: true });
+  document.getElementById('url').textContent = viewer.replace(/^https?:\/\//, '');
+  let arts = [], i = 0;
+  const show = () => { if (!arts.length) return; const a = arts[i]; document.getElementById('art').src = `galleries/${g}/${a.image}`; document.getElementById('art').alt = a.title || ''; document.getElementById('pos').textContent = `${i + 1} of ${arts.length}: ${a.title || 'Artwork'}`; };
+  document.getElementById('next').onclick = () => { i = (i + 1) % arts.length; show(); };
+  document.getElementById('prev').onclick = () => { i = (i - 1 + arts.length) % arts.length; show(); };
+  addEventListener('keydown', (e) => { if (e.key === 'ArrowRight') document.getElementById('next').click(); if (e.key === 'ArrowLeft') document.getElementById('prev').click(); });
+  fetch(`galleries/${g}/gallery.json`, { cache: 'no-cache' }).then((r) => r.json()).then((j) => { arts = j.artworks; show(); }).catch(() => { document.getElementById('pos').textContent = 'Gallery not found'; });
+</script>
+</body>
+</html>

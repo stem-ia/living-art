@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gallery Builder · Living Art</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%2317151d%27/%3E%3Crect x=%278%27 y=%277%27 width=%2716%27 height=%2718%27 rx=%271.5%27 fill=%27none%27 stroke=%27%23dcb45f%27 stroke-width=%272.4%27/%3E%3Cpath d=%27M14 12.5v7l6-3.5z%27 fill=%27%23f3ecdb%27/%3E%3C/svg%3E">
+<link rel="stylesheet" href="lib/app.css">
+<link rel="stylesheet" href="lib/paper.css">
+<style>
+  .check-label { display: flex; align-items: center; gap: 8px; font-weight: 400; font-size: 15px; color: var(--ink); margin-top: 14px; }
+  details { margin-top: 16px; border-top: 1px dashed #d6c9a7; padding-top: 14px; }
+  summary { cursor: pointer; font-weight: 600; font-size: 14px; color: #5a4f3e; }
+  details .inline { margin-top: 10px; }
+  details input[type=text] { max-width: 240px; }
+
+  #summary { display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; margin: 16px 0 0; padding: 12px 14px; background: #f3ecdb; border-radius: 12px; font-size: 14.5px; }
+  #summary .pill { display: inline-flex; align-items: center; gap: 7px; font-weight: 600; }
+  #summary .pill::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: #b9b0a0; }
+  #summary .pill.ok::before { background: var(--ok); } #summary .pill.warn::before { background: var(--warn); } #summary .pill.bad::before { background: var(--bad); }
+  #summary .sp { flex: 1; }
+
+  #rows { display: grid; gap: 12px; margin: 14px 0 14px; }
+  .row { display: grid; grid-template-columns: 110px 110px 1fr auto; gap: 14px; align-items: start; background: #fff; border-radius: 14px; padding: 12px; box-shadow: inset 0 0 0 1px #e5dcc3; animation: row-in .45s var(--spring); }
+  .row.bad { box-shadow: inset 0 0 0 2px rgba(200,95,74,.7); }
+  .row.warn { box-shadow: inset 0 0 0 1.5px rgba(212,154,60,.75); }
+  body.only-problems .row.ok { display: none; }
+  @keyframes row-in { from { opacity: 0; transform: translateY(10px); } }
+  .slot { position: relative; width: 110px; height: 110px; border-radius: 10px; background: #f3ecdb; border: 1.5px dashed #c6b48a; display: grid; place-items: center; text-align: center; font-size: 12.5px; color: #7b6f5c; cursor: pointer; overflow: hidden; padding: 6px; transition: transform .2s var(--spring); }
+  .slot.filled { border-style: solid; border-color: #e5dcc3; padding: 0; background: #2a2630; }
+  .slot img, .slot video { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .slot .tag { position: absolute; left: 6px; bottom: 6px; background: rgba(23,21,29,.8); color: var(--paper); font-size: 11px; padding: 3px 7px; border-radius: 6px; }
+  .slot.over { background: #f1e5c4; border-color: var(--ink); transform: scale(1.03); }
+  .row .fields { display: grid; gap: 8px; min-width: 0; }
+  .row .pair { display: grid; grid-template-columns: 1.3fr 1fr; gap: 8px; }
+  .row .fields input, .row .fields textarea { padding: 9px 11px; font-size: 15px; }
+  .row .fields textarea { min-height: 62px; font-size: 14px; }
+  .row .meta { display: flex; gap: 12px; align-items: center; }
+  .idx { font: 500 12px var(--mono); color: #a0937a; }
+  .linkbtn { background: none; color: #7a5c12; padding: 0; min-height: 0; font: 600 13px var(--sans); text-decoration: underline; border-radius: 0; }
+  .linkbtn:hover { filter: none; color: var(--ink); }
+  .rowtools { display: flex; flex-direction: column; gap: 4px; }
+  .x { background: transparent; color: #7b6f5c; width: 36px; height: 36px; min-height: 36px; padding: 0; border-radius: 50%; font-size: 20px; }
+  .x:hover { background: #f3ecdb; color: var(--bad); filter: none; }
+  .mv { background: transparent; color: #7b6f5c; width: 36px; height: 28px; min-height: 28px; padding: 0; border-radius: 8px; font-size: 14px; }
+  .mv:hover { background: #f3ecdb; color: var(--ink); filter: none; }
+  .rowprog { height: 6px; background: #ece3cf; border-radius: 999px; overflow: hidden; }
+  .rowprog > div { height: 100%; width: 0; background: var(--ink); transition: width .2s ease; }
+
+  #result { margin-top: 18px; }
+  .url-box { margin-top: 14px; background: #ece3cf; border-radius: 10px; padding: 12px 14px; font-size: 13.5px; word-break: break-all; font-family: var(--mono); }
+  .paths { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 10px 0 0; }
+  .paths > div { background: #f3ecdb; border-radius: 12px; padding: 12px 14px; font-size: 14.5px; line-height: 1.5; }
+  .paths b { display: block; margin-bottom: 4px; }
+
+  @media (max-width: 720px) {
+    .row { grid-template-columns: 1fr 1fr auto; }
+    .row .fields { grid-column: 1 / -1; grid-row: 2; }
+    .slot { width: 100%; }
+    .paths { grid-template-columns: 1fr; }
+  }
+
+  #print-area { display: none; }
+  @media print {
+    @page { size: letter; margin: 12mm; }
+    body.paper { background: #fff; }
+    .top, main { display: none !important; }
+    #print-area { display: block; color: #111; font-family: var(--serif); }
+    #print-area svg { shape-rendering: crispEdges; }
+    .poster { height: 236mm; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; page-break-after: always; border: 1.5px solid #111; outline: 1px solid #111; outline-offset: 4px; }
+    .poster .eyebrow { font: 600 13px var(--sans); letter-spacing: .25em; text-transform: uppercase; color: #111; }
+    .poster h1 { font-size: 40px; margin: 10px 30px 6px; }
+    .poster p { font-size: 18px; margin: 0 0 26px; }
+    .poster svg { width: 110mm; height: 110mm; }
+    .poster .scan { font: 600 20px var(--sans); margin-top: 22px; }
+    .poster .how { font: 15px/1.5 var(--sans); margin-top: 8px; max-width: 130mm; }
+    .poster .small { font: 12px var(--mono); color: #444; margin-top: 10px; }
+    .labels { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+    .label { border: 1px solid #111; border-radius: 3mm; padding: 4mm; height: 56mm; display: flex; gap: 4mm; align-items: center; page-break-inside: avoid; overflow: hidden; }
+    .label svg { width: 32mm; height: 32mm; flex: none; }
+    .label img { width: 14mm; height: 14mm; object-fit: cover; border: 1px solid #999; float: right; margin-left: 2mm; }
+    .label b { display: block; font-size: 16px; line-height: 1.2; }
+    .label i { display: block; font-size: 13.5px; margin-top: 3px; }
+    .label span { display: block; font: 11px/1.4 var(--sans); margin-top: 6px; color: #333; }
+    .label small { display: block; font: 10px var(--mono); color: #666; margin-top: 4px; }
+  }
+</style>
+<script src="lib/jszip.min.js"></script>
+<script src="lib/qrcode.js"></script>
+</head>
+<body class="paper">
+<div class="top"><h1><a href="./">Living Art</a> <span>Gallery Builder</span></h1><nav><a href="teacher.html">Teacher guide</a><a href="student.html">Student handout</a><a href="piece.html">Student page</a><a href="view.html?g=demo">Demo gallery</a></nav></div>
+
+<main class="cols">
+  <section class="card">
+    <h2><span class="num">1</span> Gallery</h2>
+    <div class="fields-2">
+      <div><label for="g-title">Gallery name</label><input type="text" id="g-title" placeholder="Art 20 Living Art Gallery"></div>
+      <div><label for="g-sub">Subtitle (optional)</label><input type="text" id="g-sub" placeholder="STEM Innovation Academy · January 2027"></div>
+    </div>
+    <div style="margin-top:14px">
+      <label for="g-id">Link ID</label>
+      <input type="text" id="g-id" placeholder="art20-jan-2027" style="max-width:340px" autocomplete="off" spellcheck="false">
+      <div class="help">Lowercase letters, numbers and dashes. The QR code will open <code id="g-url">…</code></div>
+    </div>
+    <label class="check-label"><input type="checkbox" id="g-loop" checked> Loop the animations (off = play once and hold the last frame)</label>
+    <details>
+      <summary>Continue a gallery you started earlier, or add late hand-ins</summary>
+      <div class="inline">
+        <input type="text" id="load-id" placeholder="Link ID of a gallery that's online" spellcheck="false">
+        <button class="small btn-dark" id="load-btn">Load from the site</button>
+        <span style="color:#7b6f5c;font-size:14px">or</span>
+        <button class="small btn-line" id="zip-btn">Open a gallery zip</button>
+        <input type="file" id="zip-input" accept=".zip,application/zip" hidden>
+        <span class="help" id="load-status"></span>
+      </div>
+    </details>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">2</span> Artworks <small id="count"></small></h2>
+    <div class="dropzone" id="drop">
+      <strong>Drop everything the students handed in here, all at once.</strong><br>
+      Hand-in files from the student page, loose photos and videos, whole folders, or the zip Schoology gives you. The builder sorts it out.
+      <div class="inline">
+        <button class="small btn-dark" id="pick">Choose files</button>
+        <button class="small btn-line" id="pick-folder">Choose a folder</button>
+        <button class="small btn-line" id="add-row">Add one empty artwork</button>
+      </div>
+      <input type="file" id="pick-input" multiple accept="image/*,video/*,.heic,.heif,.mov,.mp4,.m4v,.webm,.zip,.livingart" hidden>
+      <input type="file" id="folder-input" webkitdirectory multiple hidden>
+    </div>
+    <div class="status" id="drop-status" style="margin-top:8px"></div>
+    <div id="summary" class="hidden">
+      <span class="pill ok" id="sum-ok"></span><span class="pill warn" id="sum-warn"></span><span class="pill bad" id="sum-bad"></span>
+      <span class="sp"></span>
+      <button class="small btn-dark hidden" id="fix-all"></button>
+      <button class="small btn-line hidden" id="copy-list">Copy a fix list for students</button>
+      <label class="check-label" style="margin:0"><input type="checkbox" id="only-problems"> Show only problems</label>
+    </div>
+    <div id="rows"></div>
+    <div class="note"><strong>What goes online:</strong> the title, artist label and statement shown here, a 1200 px copy of each image, and the video. File names, photo location data and camera details are erased first. Galleries are public web pages, so use a first name and last initial, and check media consent.</div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">3</span> Try, build and publish</h2>
+    <div class="inline">
+      <button class="btn-line" id="try-btn" disabled>Try it with this computer's camera</button>
+      <button id="build-btn">Build gallery</button>
+      <button class="btn-line" id="print-btn" disabled>Print QR poster and labels</button>
+    </div>
+    <div class="progress hidden" id="prog"><div></div></div>
+    <div class="status" id="status"></div>
+    <div class="inline hidden" id="skip-wrap" style="margin-top:8px"><button class="small btn-dark" id="build-skip">Build without the blocked artwork</button><span class="help" style="margin:0">Blocked artworks stay on this page, so you can fix them and build again.</span></div>
+    <div id="result" class="hidden">
+      <ol class="steps">
+        <li><strong id="zip-name"></strong> has downloaded. Keep it: it is the gallery, and also your saved project if you need to add a late piece.</li>
+        <li>Publish it one of two ways:
+          <div class="paths">
+            <div><b>Send it to your Digital Learning Coordinator</b> Share the zip from OneDrive. It is usually too big for email. Publishing takes a few minutes, and you get a message when the link is live.</div>
+            <div><b>Or publish it yourself</b> if you have access to the school GitHub: unzip it, <a id="upload-link" href="#" target="_blank" rel="noopener">open the upload page</a>, drag the <code class="gid"></code> folder in and click <strong>Commit changes</strong>.</div>
+          </div>
+        </li>
+        <li>When it's live, open this link on a phone and point it at an artwork. Then print the poster and labels.</li>
+      </ol>
+      <div class="url-box" id="final-url"></div>
+    </div>
+  </section>
+</main>
+<div id="print-area"></div>
+
+<script type="module">
+import * as S from './lib/studio.js';
+
+const $ = (id) => document.getElementById(id);
+const log = (...a) => console.log('[LAB]', ...a);
+const REPO = 'stem-ia/living-art';
+const UPLOAD_URL = `https://github.com/${REPO}/upload/main/galleries`;
+const items = [];
+let uid = 0;
+
+// ---------------------------------------------------------------- gallery fields
+let idTouched = false;
+$('g-title').addEventListener('input', () => { if (!idTouched) $('g-id').value = S.slug($('g-title').value); paintUrl(); });
+$('g-id').addEventListener('input', () => { idTouched = true; paintUrl(); });
+const viewUrl = (id, a) => new URL(`view.html?g=${encodeURIComponent(id || 'your-gallery')}${a ? `&a=${a}` : ''}`, location.href).href;
+function paintUrl() { $('g-url').textContent = viewUrl($('g-id').value.trim()); }
+paintUrl();
+
+// ---------------------------------------------------------------- items
+function newItem(at) {
+  const it = { uid: ++uid, id: S.shortId(), pid: null, key: '', title: '', artist: '', statement: '', img: null, vid: null, match: null, matchChecks: [], notes: [], target: null, compiling: false, fixing: false, el: null };
+  if (at == null) items.push(it); else items.splice(at, 0, it);
+  return it;
+}
+function removeItem(it) {
+  const i = items.indexOf(it); if (i < 0) return;
+  items.splice(i, 1);
+  it.el?.remove();
+  if (it.img?.url) URL.revokeObjectURL(it.img.url);
+  if (it.vid?.url) URL.revokeObjectURL(it.vid.url);
+  renumber(); paintSummary();
+}
+function moveItem(it, dir) {
+  const i = items.indexOf(it), j = i + dir;
+  if (j < 0 || j >= items.length) return;
+  [items[i], items[j]] = [items[j], items[i]];
+  const rows = $('rows');
+  if (dir < 0) rows.insertBefore(it.el, items[j + 1]?.el ?? null); else rows.insertBefore(items[i].el, it.el);
+  renumber();
+}
+function renumber() { items.forEach((it, i) => { const n = it.el?.querySelector('.idx'); if (n) n.textContent = String(i + 1).padStart(2, '0'); }); }
+
+// ---------------------------------------------------------------- files in
+let busyIn = 0;
+async function addDrop(dt) {
+  busyIn++; $('drop-status').textContent = 'Reading the files…';
+  try {
+    const { loose, packages, skipped } = await S.gather(dt);
+    const jobs = [];
+    // 1. one-file hand-ins from the student page
+    for (const p of packages) {
+      let it = p.meta.pid && items.find((x) => x.pid === p.meta.pid);
+      const replaced = !!it;
+      if (!it) it = newItem();
+      it.pid = p.meta.pid || null; it.title = p.meta.title || ''; it.artist = p.meta.artist || S.artistFromName(p.folder) || ''; it.statement = p.meta.statement || '';
+      it.notes = replaced ? [{ level: 'info', text: 'Replaced with the student\'s newer hand-in.' }] : [];
+      it.target = p.target; it.fromPackage = true;
+      renderRow(it);
+      jobs.push(setImage(it, p.image, { keepTarget: !!p.target, artBlob: p.image }).then(() => setVideo(it, p.video)));
+    }
+    // 2. loose photos and videos: pair by folder, then by file name
+    const groups = new Map();
+    const byFolder = new Map();
+    for (const l of loose) { const k = l.folder || ''; if (!byFolder.has(k)) byFolder.set(k, []); byFolder.get(k).push(l); }
+    for (const [folder, list] of byFolder) {
+      const imgs = list.filter((l) => S.isImg(l.file)), vids = list.filter((l) => S.isVid(l.file));
+      if (folder && imgs.length === 1 && vids.length === 1) { groups.set(`folder:${folder}`, { img: imgs[0].file, vid: vids[0].file, artist: S.artistFromName(folder) || S.artistFromName(imgs[0].file.name) }); continue; }
+      for (const l of list) {
+        const k = `${folder}/${S.stem(l.file.name)}`;
+        if (!groups.has(k)) groups.set(k, { img: null, vid: null, artist: S.artistFromName(l.file.name) || S.artistFromName(folder), stem: S.stem(l.file.name) });
+        const g = groups.get(k);
+        if (S.isImg(l.file) && !g.img) g.img = l.file; else if (S.isVid(l.file) && !g.vid) g.vid = l.file;
+        else groups.set(`${k}#${groups.size}`, { img: S.isImg(l.file) ? l.file : null, vid: S.isVid(l.file) ? l.file : null, artist: g.artist, stem: g.stem });
+      }
+    }
+    for (const [k, g] of groups) {
+      // a file that completes a row already on the page (same name, other half missing)
+      let it = g.stem && items.find((x) => x.key === g.stem && ((g.img && !x.img) || (g.vid && !x.vid)) && !(g.img && x.img) && !(g.vid && x.vid));
+      if (!it) { it = newItem(); it.key = g.stem || ''; it.artist = g.artist || ''; }
+      renderRow(it);
+      const chain = [];
+      if (g.img) chain.push(setImage(it, g.img));
+      if (g.vid) chain.push(setVideo(it, g.vid));
+      jobs.push(Promise.all(chain));
+    }
+    await Promise.all(jobs);
+    // 3. whatever is left over: pair a lone image with the lone video whose first frame looks like it
+    const paired = await pairByPicture();
+    const bits = [];
+    if (packages.length) bits.push(`${packages.length} student hand-in file${packages.length === 1 ? '' : 's'}`);
+    if (groups.size) bits.push(`${loose.length} loose file${loose.length === 1 ? '' : 's'}`);
+    if (paired) bits.push(`${paired} pair${paired === 1 ? '' : 's'} matched by the picture`);
+    if (skipped.length) bits.push(`${skipped.length} skipped (${skipped.slice(0, 3).join(', ')}${skipped.length > 3 ? '…' : ''})`);
+    $('drop-status').textContent = bits.length ? `Added ${bits.join(', ')}.` : 'Nothing usable in that drop. Photos, videos, folders, zips and .livingart files work.';
+    log('added', JSON.stringify({ packages: packages.length, loose: loose.length, paired, skipped: skipped.length, items: items.length }));
+  } catch (e) { log('drop error', e); $('drop-status').textContent = 'Something in that drop couldn\'t be read.'; }
+  finally { busyIn--; paintSummary(); }
+}
+async function pairByPicture() {
+  const loneImgs = items.filter((x) => x.img?.ok && !x.vid), loneVids = items.filter((x) => x.vid?.ok && !x.img);
+  if (!loneImgs.length || !loneVids.length) return 0;
+  const isig = loneImgs.map((x) => S.signature(x.img.el, x.img.w, x.img.h));
+  const vsig = []; for (const x of loneVids) vsig.push(await S.videoSignature(x.vid));
+  const cand = [];
+  loneImgs.forEach((a, i) => loneVids.forEach((b, j) => { const c = S.similarity(isig[i], vsig[j]); if (c >= 0.75) cand.push({ c, i, j }); }));
+  cand.sort((a, b) => b.c - a.c);
+  const usedI = new Set(), usedJ = new Set(); let n = 0;
+  for (const { c, i, j } of cand) {
+    if (usedI.has(i) || usedJ.has(j)) continue;
+    usedI.add(i); usedJ.add(j); n++;
+    const a = loneImgs[i], b = loneVids[j];
+    a.vid = b.vid; b.vid = null; a.artist = a.artist || b.artist;
+    a.notes.push({ level: 'info', text: 'Paired by matching the picture, because the two files had different names.' });
+    removeItem(b);
+    await recheckMatch(a); renderRow(a);
+  }
+  return n;
+}
+const drop = $('drop');
+['dragenter', 'dragover'].forEach((e) => drop.addEventListener(e, (ev) => { ev.preventDefault(); drop.classList.add('over'); }));
+['dragleave', 'drop'].forEach((e) => drop.addEventListener(e, (ev) => { ev.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', (ev) => addDrop(ev.dataTransfer));
+$('pick').onclick = () => $('pick-input').click();
+$('pick-input').onchange = (e) => { const f = [...e.target.files]; e.target.value = ''; addDrop(f); };
+$('pick-folder').onclick = () => $('folder-input').click();
+$('folder-input').onchange = (e) => { const f = [...e.target.files]; e.target.value = ''; addDrop(f); };
+$('add-row').onclick = () => { const it = newItem(); renderRow(it); paintSummary(); };
+window.addEventListener('dragover', (e) => e.preventDefault());
+window.addEventListener('drop', (e) => e.preventDefault());
+
+// ---------------------------------------------------------------- one row
+function renderRow(it) {
+  if (!it.el) {
+    const el = document.createElement('div');
+    el.className = 'row';
+    el.innerHTML = `
+      <div class="slot img-slot" tabindex="0" role="button" aria-label="Choose artwork image"></div>
+      <div class="slot vid-slot" tabindex="0" role="button" aria-label="Choose animation video"></div>
+      <div class="fields">
+        <div class="meta"><span class="idx"></span><button type="button" class="linkbtn st-toggle">Add an artist statement</button></div>
+        <div class="pair">
+          <input type="text" class="t" placeholder="Title of the artwork" aria-label="Title" maxlength="80">
+          <input type="text" class="a" placeholder="Artist: first name, last initial" aria-label="Artist" maxlength="40">
+        </div>
+        <textarea class="s hidden" placeholder="Artist statement (optional). Shown when a visitor taps the caption." aria-label="Artist statement" maxlength="${S.SPEC.STATEMENT_MAX}"></textarea>
+        <ul class="checks"></ul>
+        <div class="rowprog hidden"><div></div></div>
+      </div>
+      <div class="rowtools">
+        <button class="x" title="Remove" aria-label="Remove artwork">×</button>
+        <button class="mv up" title="Move up" aria-label="Move up">▲</button>
+        <button class="mv dn" title="Move down" aria-label="Move down">▼</button>
+      </div>`;
+    const t = el.querySelector('.t'), a = el.querySelector('.a'), s = el.querySelector('.s');
+    t.oninput = () => (it.title = t.value);
+    a.oninput = () => { const had = !!it.artist.trim(); it.artist = a.value; if (had !== !!it.artist.trim()) paintRow(it); };
+    s.oninput = () => (it.statement = s.value);
+    el.querySelector('.st-toggle').onclick = () => { s.classList.toggle('hidden'); if (!s.classList.contains('hidden')) s.focus(); };
+    el.querySelector('.x').onclick = () => removeItem(it);
+    el.querySelector('.up').onclick = () => moveItem(it, -1);
+    el.querySelector('.dn').onclick = () => moveItem(it, 1);
+    for (const [cls, kind] of [['.img-slot', 'img'], ['.vid-slot', 'vid']]) {
+      const slot = el.querySelector(cls);
+      const input = document.createElement('input');
+      input.type = 'file'; input.hidden = true; input.accept = kind === 'img' ? 'image/*,.heic,.heif' : 'video/*,.mov,.mp4,.m4v,.webm';
+      input.onchange = () => { const f = input.files[0]; if (f) kind === 'img' ? setImage(it, f) : setVideo(it, f); input.value = ''; };
+      slot.after(input);
+      slot.onclick = () => input.click();
+      slot.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); } };
+      slot.ondragover = (e) => { e.preventDefault(); e.stopPropagation(); slot.classList.add('over'); };
+      slot.ondragleave = () => slot.classList.remove('over');
+      slot.ondrop = (e) => {
+        e.preventDefault(); e.stopPropagation(); slot.classList.remove('over');
+        const f = [...e.dataTransfer.files].find(kind === 'img' ? S.isImg : S.isVid);
+        if (f) kind === 'img' ? setImage(it, f) : setVideo(it, f);
+      };
+    }
+    it.el = el;
+    const i = items.indexOf(it), next = items.slice(i + 1).find((x) => x.el);
+    $('rows').insertBefore(el, next ? next.el : null);
+    renumber();
+  }
+  const el = it.el;
+  const is = el.querySelector('.img-slot'), vs = el.querySelector('.vid-slot');
+  if (it.img?.ok) { is.classList.add('filled'); is.innerHTML = `<img alt=""><span class="tag">Image</span>`; is.querySelector('img').src = it.img.url; }
+  else { is.classList.remove('filled'); is.textContent = it.img ? it.img.file.name : 'Drop or tap to add the artwork image'; }
+  if (it.vid?.ok) { vs.classList.add('filled'); vs.innerHTML = `<video muted playsinline preload="metadata"></video><span class="tag">Video</span>`; vs.querySelector('video').src = it.vid.url + '#t=0.001'; }
+  else { vs.classList.remove('filled'); vs.textContent = it.vid ? it.vid.file.name : 'Drop or tap to add the animation video'; }
+  el.querySelector('.t').value = it.title;
+  el.querySelector('.a').value = it.artist;
+  const s = el.querySelector('.s'); s.value = it.statement;
+  if (it.statement) s.classList.remove('hidden');
+  el.querySelector('.st-toggle').textContent = it.statement ? 'Artist statement' : 'Add an artist statement';
+  paintRow(it);
+}
+// 'bad' = can't be published yet, 'warn' = will work but has something to look at, 'ok'
+function rowChecks(it) {
+  const all = [];
+  if (!it.img) all.push({ level: 'bad', code: 'no-img', text: 'Needs the artwork image.' }); else all.push(...it.img.checks);
+  if (!it.vid) all.push({ level: 'bad', code: 'no-vid', text: 'Needs the animation video.' }); else all.push(...S.withFixes(it.vid.checks));
+  all.push(...S.withFixes(it.matchChecks), ...it.notes);
+  if (it.img?.ok && it.vid?.ok && !it.artist.trim()) all.push({ level: 'warn', code: 'no-name', text: 'No artist name yet. Type a first name and last initial.' });
+  if (it.compiling) all.push({ level: 'busy', text: 'Testing how well a camera can recognize this artwork…' });
+  else if (it.target) all.push(S.trackingCheck(it.target));
+  return all;
+}
+function rowLevel(it) {
+  if (!it.img?.ok || !it.vid?.ok || it.vid.checks.some((c) => c.level === 'bad')) return 'bad';
+  const all = rowChecks(it);
+  return all.some((c) => c.level === 'warn' || c.level === 'bad') ? 'warn' : 'ok';
+}
+function paintRow(it) {
+  if (!it.el) return;
+  S.paintChecks(it.el.querySelector('.checks'), rowChecks(it), (id, btn) => fix(it, id, btn));
+  const lv = rowLevel(it);
+  it.el.classList.toggle('bad', lv === 'bad'); it.el.classList.toggle('warn', lv === 'warn'); it.el.classList.toggle('ok', lv === 'ok');
+  paintSummary();
+}
+function paintSummary() {
+  const n = items.length;
+  $('count').textContent = n ? `${n} total` : '';
+  $('summary').classList.toggle('hidden', !n);
+  const lv = items.map(rowLevel), c = (k) => lv.filter((x) => x === k).length;
+  $('sum-ok').textContent = `${c('ok')} ready`; $('sum-warn').textContent = `${c('warn')} to look at`; $('sum-bad').textContent = `${c('bad')} blocked`;
+  $('sum-warn').classList.toggle('hidden', !c('warn')); $('sum-bad').classList.toggle('hidden', !c('bad'));
+  const fixable = items.filter((it) => !it.fixing && it.vid && S.withFixes(it.vid.checks).some((k) => k.fix));
+  $('fix-all').classList.toggle('hidden', fixable.length < 2);
+  $('fix-all').textContent = `Fix ${fixable.length} videos automatically`;
+  $('copy-list').classList.toggle('hidden', !(c('warn') + c('bad')));
+  const ready = items.filter((it) => rowLevel(it) !== 'bad' && it.target);
+  $('try-btn').disabled = !ready.length;
+}
+$('only-problems').onchange = (e) => document.body.classList.toggle('only-problems', e.target.checked);
+
+// ---------------------------------------------------------------- image, video, match, tracking
+async function setImage(it, file, opts = {}) {
+  if (it.img?.url) URL.revokeObjectURL(it.img.url);
+  const r = await S.readImage(file);
+  it.img = { ...r, file, artBlob: opts.artBlob || null };
+  if (!opts.keepTarget) it.target = null;
+  if (!it.artist && !it.fromPackage) it.artist = S.artistFromName(file.name);
+  it.key = it.key || S.stem(file.name);
+  renderRow(it);
+  if (!r.ok) return;
+  if (!it.target) queueCompile(it);
+  else if (!it.target.test) queueTest(it);
+  await recheckMatch(it);
+}
+async function setVideo(it, file, notes) {
+  if (it.vid?.url) URL.revokeObjectURL(it.vid.url);
+  it.vid = { ok: false, checks: [{ level: 'busy', text: 'Checking the video…' }], file, url: '' };
+  renderRow(it);
+  const r = await S.readVideo(file);
+  it.vid = { ...r, file, pub: r.cleanBlob ? new File([r.cleanBlob], file.name, { type: 'video/mp4' }) : file };
+  if (notes) it.notes = it.notes.filter((n) => !n.fixNote).concat(notes.map((n) => ({ ...n, fixNote: true })));
+  if (!it.artist && !it.fromPackage) it.artist = S.artistFromName(file.name);
+  it.key = it.key || S.stem(file.name);
+  it.match = null; it.matchChecks = [];
+  renderRow(it);
+  await recheckMatch(it);
+}
+async function recheckMatch(it) {
+  if (!it.img?.ok || !it.vid?.ok) { it.matchChecks = []; paintRow(it); return; }
+  const m = await S.matchCheck(it.img, it.vid);
+  it.match = m.corr; it.matchChecks = m.checks;
+  log('match', it.artist || it.title || it.key, m.corr.toFixed(3));
+  paintRow(it);
+}
+function queueCompile(it) {
+  const img = it.img;
+  it.compiling = true; paintRow(it);
+  return S.compileTarget(img.el, img.w, img.h, () => items.includes(it) && it.img === img).then((t) => {
+    if (it.img !== img) return;
+    it.target = t; it.compiling = false; paintRow(it);
+  }).catch((e) => {
+    log('compile error', e);
+    if (it.img !== img) return;
+    it.compiling = false; it.img.checks.push({ level: 'bad', text: 'Couldn\'t build tracking data from this image. Try a different photo.' }); paintRow(it);
+  });
+}
+function queueTest(it) { // tracking data came with the file; only the test is missing
+  const img = it.img, target = it.target;
+  it.compiling = true; paintRow(it);
+  S.selfTestQueued(img.el, img.w, img.h, target).then((t) => { if (it.target === target) { target.test = t; it.compiling = false; paintRow(it); } }).catch(() => { it.compiling = false; paintRow(it); });
+}
+async function fix(it, id, btn) {
+  if (it.fixing) return;
+  it.fixing = true; if (btn) { btn.disabled = true; btn.textContent = 'Working…'; }
+  const bar = it.el.querySelector('.rowprog'); bar.classList.remove('hidden'); bar.firstElementChild.style.width = '3%';
+  try {
+    const r = await S.fixVideo(it.vid.file, { aspect: id === 'shape' ? it.img.w / it.img.h : 0, onProgress: (p) => (bar.firstElementChild.style.width = `${Math.round(p * 100)}%`) });
+    const notes = [{ level: 'info', text: id === 'shape' ? 'The video was cropped to the artwork\'s shape.' : `Converted to a small MP4 (${(r.file.size / 1048576).toFixed(1)} MB) that plays on every device.` }];
+    if (r.audioDropped) notes.push({ level: 'warn', text: 'The sound couldn\'t be kept on this computer. If the piece needs sound, convert it on a Mac or ask for an MP4 at 720p.' });
+    it.fixing = false;
+    await setVideo(it, r.file, notes);
+  } catch (e) {
+    it.notes = it.notes.filter((n) => !n.fixNote).concat([{ level: 'bad', text: e.message, fixNote: true }]);
+  } finally { it.fixing = false; bar.classList.add('hidden'); paintRow(it); }
+}
+$('fix-all').onclick = async () => {
+  $('fix-all').disabled = true;
+  for (const it of [...items]) {
+    const f = it.vid && S.withFixes(it.vid.checks).find((k) => k.fix);
+    if (f && items.includes(it)) await fix(it, f.fix.id, null);
+  }
+  $('fix-all').disabled = false; paintSummary();
+};
+$('copy-list').onclick = async () => {
+  const lines = [`Living Art: things to fix${$('g-title').value.trim() ? ` (${$('g-title').value.trim()})` : ''}`, ''];
+  items.forEach((it, i) => {
+    const probs = rowChecks(it).filter((c) => c.level === 'bad' || c.level === 'warn');
+    if (!probs.length) return;
+    lines.push(`${it.artist || `Artwork ${i + 1}`}${it.title ? ` ("${it.title}")` : ''}`);
+    for (const p of probs) lines.push(`  - ${p.text}`);
+    lines.push('');
+  });
+  lines.push('Check your own piece before handing it in again: ' + new URL('piece.html', location.href).href);
+  const text = lines.join('\n');
+  window.__fixList = text;
+  try { await navigator.clipboard.writeText(text); $('copy-list').textContent = 'Copied'; }
+  catch { S.download(new Blob([text], { type: 'text/plain' }), 'living-art-fix-list.txt'); $('copy-list').textContent = 'Saved as a text file'; }
+  setTimeout(() => ($('copy-list').textContent = 'Copy a fix list for students'), 1800);
+};
+
+// ---------------------------------------------------------------- continue an earlier gallery (from the site or from a zip)
+async function loadFrom(getText, getBlob, label) {
+  const st = $('load-status');
+  const g = JSON.parse(await getText('gallery.json'));
+  const existing = S.importTargets(await (await getBlob('targets.mind')).arrayBuffer());
+  $('g-title').value = g.title || ''; $('g-sub').value = g.subtitle || ''; $('g-id').value = g.id || label; idTouched = true;
+  $('g-loop').checked = g.loop !== false; paintUrl();
+  let n = 0;
+  for (const [i, art] of g.artworks.entries()) {
+    st.textContent = `Loading artwork ${++n} of ${g.artworks.length}…`;
+    const [ib, vb] = await Promise.all([getBlob(art.image), getBlob(art.video)]);
+    const it = newItem();
+    it.id = art.id || it.id; it.pid = art.pid || null; it.title = art.title || ''; it.artist = art.artist || ''; it.statement = art.statement || ''; it.fromPackage = true;
+    it.target = existing[i] || null;
+    if (it.target) it.target.test = art.test || null;
+    const img = new File([ib], art.image.split('/').pop(), { type: 'image/jpeg' });
+    await setImage(it, img, { keepTarget: !!it.target, artBlob: img });
+    await setVideo(it, new File([vb], art.video.split('/').pop(), { type: /webm$/.test(art.video) ? 'video/webm' : 'video/mp4' }));
+  }
+  paintSummary();
+  st.textContent = `Loaded ${g.artworks.length} artworks. Drop in the new hand-ins, then build again.`;
+}
+$('load-btn').onclick = async () => {
+  const id = S.slug($('load-id').value);
+  if (!id) return;
+  const base = `galleries/${id}/`;
+  $('load-status').textContent = 'Loading…';
+  try {
+    const ok = async (p) => { const r = await fetch(base + p, { cache: 'no-cache' }); if (!r.ok) throw new Error(r.status); return r; };
+    await loadFrom((p) => ok(p).then((r) => r.text()), (p) => ok(p).then((r) => r.blob()), id);
+  } catch (e) { log('load error', e); $('load-status').textContent = 'Couldn\'t find that gallery on this site.'; }
+};
+$('zip-btn').onclick = () => $('zip-input').click();
+$('zip-input').onchange = async (e) => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  $('load-status').textContent = 'Opening zip…';
+  try {
+    const zip = await JSZip.loadAsync(f);
+    const gj = Object.keys(zip.files).find((p) => p.endsWith('gallery.json'));
+    if (!gj) throw new Error('no gallery.json');
+    const root = gj.slice(0, -'gallery.json'.length);
+    const label = root.replace(/\/$/, '').split('/').pop() || S.slug(f.name.replace(/\.zip$/i, ''));
+    await loadFrom((p) => zip.file(root + p).async('string'), (p) => zip.file(root + p).async('blob'), label);
+  } catch (err) { log('zip error', err); $('load-status').textContent = 'That zip isn\'t a Living Art gallery.'; }
+};
+
+// ---------------------------------------------------------------- pack a gallery (used by Try and by Build)
+function status(text, err) { const s = $('status'); s.textContent = text; s.classList.toggle('err', !!err); }
+function setProgress(p) { $('prog').classList.toggle('hidden', p == null); $('prog').firstElementChild.style.width = `${p || 0}%`; }
+async function waitForTracking(list) {
+  list.filter((it) => !it.target && !it.compiling).forEach(queueCompile);
+  while (list.some((it) => it.compiling || !it.target)) {
+    setProgress(list.filter((it) => it.target && !it.compiling).length / list.length * 70);
+    await new Promise((r) => setTimeout(r, 300));
+    if (list.some((it) => !it.compiling && !it.target)) throw new Error('compile');
+  }
+}
+// -> { gallery, files: { path: Blob } }
+async function pack(list, id, onStep = () => {}) {
+  const files = {}, artworks = [];
+  for (const [i, it] of list.entries()) {
+    const nn = String(i + 1).padStart(2, '0');
+    const small = Math.max(it.img.w, it.img.h) <= S.SPEC.IMG_MAX;
+    const art = it.img.artBlob && small ? it.img.artBlob : await S.artJpeg(it.img.el, it.img.w, it.img.h); // re-encoding drops EXIF, including GPS
+    const k = Math.min(1, S.SPEC.IMG_MAX / Math.max(it.img.w, it.img.h));
+    const vext = S.ext(it.vid.pub) === 'webm' ? 'webm' : 'mp4'; // MOV and M4V are MP4 containers; the .mp4 name plays everywhere
+    files[`art/${nn}.jpg`] = art; files[`video/${nn}.${vext}`] = it.vid.pub;
+    const a = { id: it.id, title: it.title.trim(), artist: it.artist.trim(), image: `art/${nn}.jpg`, video: `video/${nn}.${vext}`, w: Math.round(it.img.w * k), h: Math.round(it.img.h * k), test: it.target.test || undefined };
+    if (it.statement.trim()) a.statement = it.statement.trim().slice(0, S.SPEC.STATEMENT_MAX);
+    if (it.pid) a.pid = it.pid;
+    artworks.push(a);
+    onStep((i + 1) / list.length);
+  }
+  const gallery = { schema: 2, title: $('g-title').value.trim() || 'Living Art gallery', subtitle: $('g-sub').value.trim(), id, loop: $('g-loop').checked, version: Date.now(), built: new Date().toISOString(), artworks };
+  const mindRaw = S.exportTargets(list.map((it) => it.target));
+  files['targets.mind'] = new Blob([mindRaw]);
+  if (S.canGzip()) { files['targets.mind.gz'] = new Blob([await S.gzip(mindRaw)]); gallery.targetsGz = true; }
+  return { gallery, files };
+}
+const publishable = () => items.filter((it) => rowLevel(it) !== 'bad');
+
+$('try-btn').onclick = async () => {
+  const list = publishable();
+  if (!list.length) return;
+  $('try-btn').disabled = true; status('Getting the gallery ready to try…');
+  try {
+    await waitForTracking(list);
+    const local = await pack(list, 'local');
+    status('');
+    S.openTryIt(local);
+  } catch (e) { log('try error', e); status('Couldn\'t get the gallery ready. Check the artworks marked in red.', true); }
+  finally { $('try-btn').disabled = false; setProgress(null); }
+};
+
+// ---------------------------------------------------------------- build
+let built = null;
+async function build(skipBlocked) {
+  const title = $('g-title').value.trim();
+  const id = S.slug($('g-id').value);
+  $('g-id').value = id; paintUrl();
+  $('skip-wrap').classList.add('hidden');
+  if (!title) return status('Give the gallery a name first (step 1).', true);
+  if (id.length < 3) return status('The link ID needs at least 3 letters or numbers (step 1).', true);
+  if (id === 'local' || id === 'demo') return status('"local" and "demo" are reserved. Choose another link ID (step 1).', true);
+  if (!items.length) return status('Add at least one artwork (step 2).', true);
+  if (busyIn) return status('Still reading files. Try again in a moment.', true);
+  const list = publishable(), blocked = items.length - list.length;
+  if (blocked && !skipBlocked) {
+    $('skip-wrap').classList.toggle('hidden', !list.length);
+    return status(`${blocked} artwork${blocked === 1 ? ' is' : 's are'} blocked (outlined in red). Fix ${blocked === 1 ? 'it' : 'them'} first${list.length ? `, or build without ${blocked === 1 ? 'it' : 'them'}` : ''}.`, true);
+  }
+  if (!list.length) return status('No artwork is ready to publish yet.', true);
+  $('build-btn').disabled = true;
+  $('result').classList.add('hidden');
+  try {
+    status('Finishing tracking tests…'); setProgress(2);
+    await waitForTracking(list);
+    status('Packing the gallery…'); setProgress(75);
+    const { gallery, files } = await pack(list, id, (p) => setProgress(75 + p * 15));
+    const zip = new JSZip(), dir = zip.folder(id);
+    for (const [p, b] of Object.entries(files)) dir.file(p, b);
+    dir.file('gallery.json', JSON.stringify(gallery, null, 2));
+    status('Compressing…'); setProgress(92);
+    const blob = await zip.generateAsync({ type: 'blob', compression: 'STORE' });
+    const name = `${id}.zip`;
+    S.download(blob, name);
+    built = { gallery, url: viewUrl(id), thumbs: list.map((it) => it.img.url) };
+    window.__built = { name, size: blob.size, gallery, blob };
+    setProgress(100);
+    const weak = list.filter((it) => S.trackingGrade(it.target.test) !== 'strong').length;
+    status(`Built ${list.length} artwork${list.length === 1 ? '' : 's'} (${(blob.size / 1048576).toFixed(1)} MB). The download has started.`
+      + (blocked ? ` ${blocked} blocked artwork${blocked === 1 ? ' was' : 's were'} left out.` : '')
+      + (weak ? ` ${weak} artwork${weak === 1 ? ' has' : 's have'} a tracking warning; try ${weak === 1 ? 'it' : 'them'} with a camera before the gallery walk.` : ''));
+    $('zip-name').textContent = name;
+    document.querySelectorAll('.gid').forEach((e) => (e.textContent = id));
+    $('upload-link').href = UPLOAD_URL;
+    $('final-url').textContent = built.url;
+    $('result').classList.remove('hidden');
+    $('print-btn').disabled = false;
+    log('built', name, blob.size);
+  } catch (e) {
+    log('build error', e);
+    status('Something went wrong while building. Check the artworks marked in red and try again.', true);
+  } finally {
+    $('build-btn').disabled = false;
+    setTimeout(() => setProgress(null), 800);
+  }
+}
+$('build-btn').onclick = () => build(false);
+$('build-skip').onclick = () => build(true);
+
+// ---------------------------------------------------------------- printable QR poster and one label per artwork
+$('print-btn').onclick = () => {
+  if (!built) return;
+  const { gallery, url, thumbs } = built, esc = S.esc;
+  let html = `<div class="poster"><div class="eyebrow">Living Art</div><h1>${esc(gallery.title)}</h1><p>${esc(gallery.subtitle || '')}</p>${S.qrSvg(url)}
+    <div class="scan">Scan, then point your camera at any artwork</div><div class="how">No app needed. Tap "Start the camera", allow the camera, and hold the whole artwork in view. Tap the speaker for sound.</div><div class="small">${esc(url)}</div></div><div class="labels">`;
+  gallery.artworks.forEach((art, i) => {
+    html += `<div class="label">${S.qrSvg(viewUrl(gallery.id, art.id))}<div><img src="${thumbs[i]}" alt=""><b>${esc(art.title || 'Untitled')}</b><i>${esc(art.artist || '')}</i><span>Scan, then point your camera at this artwork to bring it to life.</span><small>${String(i + 1).padStart(2, '0')}</small></div></div>`;
+  });
+  $('print-area').innerHTML = html + '</div>';
+  window.print();
+};
+window.addEventListener('beforeunload', (e) => { if (items.length && !built) { e.preventDefault(); e.returnValue = ''; } });
+window.__LAB = { items, addDrop, rowLevel, rowChecks, pack, publishable };
+</script>
+</body>
+</html>
