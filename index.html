@@ -92,7 +92,7 @@
 <div class="wrap">
   <nav>
     <a class="brand" href="./">Living <span>Art</span></a>
-    <div class="links"><a href="view.html?g=demo">Demo</a><a href="student.html">Students</a><a href="teacher.html">Teachers</a><a href="build.html">Builder</a></div>
+    <div class="links"><a href="demo.html">Demo</a><a href="student.html">Students</a><a href="teacher.html">Teachers</a><a href="build.html">Builder</a></div>
   </nav>
 
   <div class="hero">
@@ -100,7 +100,7 @@
       <div class="eyebrow">STEM Innovation Academy</div>
       <h1>Art that <span class="pill" style="background-image:url(galleries/demo/art/02.jpg)" role="img" aria-label="Lantern Harbour, a demo artwork"></span> wakes up when you point a phone at it.</h1>
       <p>Students finish a piece, animate it, and hang it up. Anyone with a phone scans one code and every artwork in the room comes alive. No app, no account.</p>
-      <a class="btn" href="view.html?g=demo">Open the demo gallery</a>
+      <a class="btn" href="demo.html">Try the demo</a>
     </div>
     <div class="stack-art" aria-hidden="true">
       <img src="galleries/demo/art/02.jpg" alt="">
@@ -112,16 +112,18 @@
   <section id="try">
     <h2 class="reveal">Try it in two minutes</h2>
     <div class="try">
-      <ol class="reveal">
-        <li>On a laptop, click one of the three demo pieces on this page to open it full size. Or print it.</li>
-        <li>On a phone or iPad, scan the code below (or open the <a href="view.html?g=demo">demo gallery</a>) and tap <b>Start the camera</b>.</li>
-        <li>Point the camera at the artwork from about an arm's length. The same code works for all three.</li>
-        <li class="scan-li"><span class="scan-qr" id="demo-qr" aria-label="QR code for the demo gallery"></span><span>Scan with your phone's camera. No app to install.</span></li>
-      </ol>
+      <div class="reveal">
+        <ol>
+          <li>On a laptop, open the demo. It shows one artwork at a time, large, with a code to scan.</li>
+          <li>Scan the code with a phone or iPad and tap <b>Start the camera</b>.</li>
+          <li>Point the phone at the artwork from about an arm's length.</li>
+        </ol>
+        <p style="margin:18px 0 0"><a class="btn" href="demo.html">Open the demo</a></p>
+      </div>
       <div class="demo-art reveal">
-        <a href="galleries/demo/art/01.jpg" target="_blank"><img src="galleries/demo/art/01.jpg" alt="The Placeholder Isles"></a>
-        <a href="galleries/demo/art/02.jpg" target="_blank"><img src="galleries/demo/art/02.jpg" alt="Lantern Harbour"></a>
-        <a href="galleries/demo/art/03.jpg" target="_blank"><img src="galleries/demo/art/03.jpg" alt="Garden Study No. 3"></a>
+        <a href="demo.html?i=1"><img src="galleries/demo/art/01.jpg" alt="The Placeholder Isles"></a>
+        <a href="demo.html?i=2"><img src="galleries/demo/art/02.jpg" alt="Lantern Harbour"></a>
+        <a href="demo.html?i=3"><img src="galleries/demo/art/03.jpg" alt="Garden Study No. 3"></a>
       </div>
     </div>
   </section>
@@ -175,9 +177,7 @@
   <footer>Built on <a href="https://github.com/hiukim/mind-ar-js">MindAR</a> and <a href="https://threejs.org">three.js</a>, both MIT licensed. Type: Fraunces, Outfit and JetBrains Mono, all open licence.</footer>
 </div>
 </main>
-<script src="lib/qrcode.js"></script>
 <script>
-  { const q = qrcode(0, 'M'); q.addData(new URL('view.html?g=demo', location.href).href); q.make(); document.getElementById('demo-qr').innerHTML = q.createSvgTag({ cellSize: 4, margin: 1, scalable: true }); }
   const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px' });
   document.querySelectorAll('.reveal').forEach((el, i) => { el.style.transitionDelay = `${(i % 3) * 80}ms`; io.observe(el); });
   const acc = document.getElementById('acc');

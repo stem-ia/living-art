@@ -15,6 +15,7 @@ Live site: `https://stem-ia.github.io/living-art/`
 | `student.html` | Students | One-page printable handout with a QR code for `piece.html` |
 | `build.html` | Teachers, DLC | Gallery Builder. Takes whatever students handed in, checks and fixes it, and outputs a gallery zip plus a printable poster and labels |
 | `teacher.html` | Teachers | Printable guide (two pages): before, during, building, gallery day, privacy, troubleshooting |
+| `demo.html` | Anyone | The demo: one artwork at a time, large, with a QR code that opens the viewer. Use this to show someone Living Art |
 | `test.html` | DLC | Device test kit. Shows the demo pieces on a laptop and a QR code that opens the viewer in test mode |
 
 ## How a class gallery comes together
@@ -75,7 +76,7 @@ A zip holding `piece.json` (title, artist, statement, a per-device id so a newer
 1. **Matcher stops early.** Upstream stops at the first artwork that gets a rough keyframe match, even if the pose check then fails, which blocks every artwork after it in the list. Patched to keep trying the others.
 2. **Tracking kernel sized to the first artwork.** Upstream reuses one GPU kernel sized for the first tracked artwork. Mixed portrait and landscape galleries lose part of each later artwork. Patched to cache one kernel per size.
 3. **Recognized frames count as seen.** Upstream only shows an artwork after six frames in which the *tracker* held it. Artwork with fine or dense detail is recognized on every frame but the tracker drops it, so it never appears. Patched so a frame counts when the artwork was tracked or freshly recognized; the pose updates from each recognition.
-4. **Track against the 256 px copy.** Upstream tracks against a 128 px copy of the artwork. Fine detail is gone at that size, so the tracker drops detailed artwork and the pose comes from recognition alone, which is noisier in depth. On an iPhone this showed as shake. Patched to use the 256 px copy that is already in the tracking data. On a simulated moving camera the atlas map's depth jitter went from 11% of the artwork's width to 0.3%. `view.html?test=1&tk=128` switches back for comparison.
+4. **The tracker picks its copy of the artwork by size on screen.** Upstream always tracks against a 128 px copy. Close up, fine detail is gone at that size, so the tracker drops detailed artwork and the pose comes from recognition alone, which is noisy in depth. On an iPhone this showed as shake. The tracking data already holds a 256 px copy as well. Patched to use whichever copy is closer to the artwork's size on screen, and to try the other if the first fails. Simulated moving camera, atlas map, depth jitter as a share of the artwork's width: close up 11% with upstream and 0.6% patched; small in view 1.0% with upstream, 40% with the 256 px copy alone, and 0.9% patched. `view.html?test=1&tk=128` or `&tk=256` forces one copy.
 
 Measured on the same simulated camera feed, before and after patch 3:
 
@@ -111,7 +112,7 @@ Targets are compiled from a 640 px image (was 1000 px). Phone cameras stream at 
 
 ## Limits
 
-- **Real-device testing has only started.** One iPhone run on 2026-11-18 (Safari, 60 fps, first piece found in 0.2 s, reported shaky, which led to patch 4). Everything else was measured in desktop Chrome with a simulated camera. Use `test.html`.
+- **Real-device testing has only started.** One iPhone run on 2026-11-18 (Safari, 60 fps, all three demo pieces found; shake on the first run led to patch 4, and the re-test was "very solid"). Everything else was measured in desktop Chrome with a simulated camera. Use `test.html`.
 - 25 artworks is a good class gallery size.
 - GitHub Pages sites cap at 1 GB. Remove old galleries at the end of the year.
 - HEIC photos open only in Safari. On other browsers the student shares the photo as a JPG.
