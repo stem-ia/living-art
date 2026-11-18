@@ -107,6 +107,7 @@
   #report textarea { flex: 1; width: 100%; background: #0e0d13; color: #d8f0d0; border: 1px solid rgba(243,236,219,.2); border-radius: 10px; padding: 12px; font: 500 12px/1.5 var(--mono); resize: none; }
   #report .row { display: flex; gap: 10px; flex-wrap: wrap; }
 </style>
+<script>if (/[?&]test=1/.test(location.search) && /[?&]tk=128/.test(location.search)) window.LA_TRACK_KEYFRAME = 1;</script>
 <script type="importmap">
 { "imports": { "three": "./lib/three/three.module.js", "three/addons/": "./lib/three/addons/" } }
 </script>
@@ -531,7 +532,8 @@ function buildReport() {
   return [
     'LIVING ART DEVICE TEST',
     `when: ${new Date().toISOString()}`,
-    `gallery: ${gid} (${gallery.artworks.length} artworks)${params.get('res') ? ' res=' + params.get('res') : ''}`,
+    `gallery: ${gid} (${gallery.artworks.length} artworks)${params.get('res') ? ' res=' + params.get('res') : ''}${window.LA_TRACK_KEYFRAME === 1 ? ' tk=128' : ''}${['cf', 'beta', 'warm', 'miss'].filter((k) => num(k) != null).map((k) => ` ${k}=${num(k)}`).join('')}`,
+    'build: 2026-11-18b',
     `device: ${nav.userAgent}`,
     `screen: ${scr.width}x${scr.height} @${devicePixelRatio}x, touch points ${nav.maxTouchPoints}`,
     `camera stream: ${stats.cam}`,

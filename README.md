@@ -70,11 +70,12 @@ A zip holding `piece.json` (title, artist, statement, a per-device id so a newer
 
 ## Patches to MindAR
 
-`lib/mindar/controller-mGt1s8dJ.js` has three fixes, all marked `Living Art patch`.
+`lib/mindar/controller-mGt1s8dJ.js` has four fixes, all marked `Living Art patch`.
 
 1. **Matcher stops early.** Upstream stops at the first artwork that gets a rough keyframe match, even if the pose check then fails, which blocks every artwork after it in the list. Patched to keep trying the others.
 2. **Tracking kernel sized to the first artwork.** Upstream reuses one GPU kernel sized for the first tracked artwork. Mixed portrait and landscape galleries lose part of each later artwork. Patched to cache one kernel per size.
 3. **Recognized frames count as seen.** Upstream only shows an artwork after six frames in which the *tracker* held it. Artwork with fine or dense detail is recognized on every frame but the tracker drops it, so it never appears. Patched so a frame counts when the artwork was tracked or freshly recognized; the pose updates from each recognition.
+4. **Track against the 256 px copy.** Upstream tracks against a 128 px copy of the artwork. Fine detail is gone at that size, so the tracker drops detailed artwork and the pose comes from recognition alone, which is noisier in depth. On an iPhone this showed as shake. Patched to use the 256 px copy that is already in the tracking data. On a simulated moving camera the atlas map's depth jitter went from 11% of the artwork's width to 0.3%. `view.html?test=1&tk=128` switches back for comparison.
 
 Measured on the same simulated camera feed, before and after patch 3:
 
@@ -110,7 +111,7 @@ Targets are compiled from a 640 px image (was 1000 px). Phone cameras stream at 
 
 ## Limits
 
-- **Not tested on real devices yet.** Everything above was measured in desktop Chrome with a simulated camera. Safari on iPad and iPhone is the first real test. Use `test.html`.
+- **Real-device testing has only started.** One iPhone run on 2026-11-18 (Safari, 60 fps, first piece found in 0.2 s, reported shaky, which led to patch 4). Everything else was measured in desktop Chrome with a simulated camera. Use `test.html`.
 - 25 artworks is a good class gallery size.
 - GitHub Pages sites cap at 1 GB. Remove old galleries at the end of the year.
 - HEIC photos open only in Safari. On other browsers the student shares the photo as a JPG.

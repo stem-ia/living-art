@@ -55,7 +55,7 @@ Likely items:
 
 ## Maintenance
 
-- MindAR is pinned at 1.2.5 with three patches (see README). Offer them upstream as pull requests.
+- MindAR is pinned at 1.2.5 with four patches (see README). Offer them upstream as pull requests.
 - three.js is pinned at r160.
 - Mediabunny is bundled into `lib/convert.js`. Rebuild with `tools/build-convert.sh` to update it.
 - Everything is vendored. Nothing loads from a CDN, so the site works on the school filter without exceptions.
